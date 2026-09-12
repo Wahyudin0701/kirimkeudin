@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, GraduationCap, Github, Instagram, Mail, ArrowRight, Briefcase, ChevronRight, Quote } from "lucide-react";
+import { MapPin, GraduationCap, Github, Instagram, Mail, ArrowRight, Briefcase, ChevronRight, Quote , Users, Calendar, Award } from "lucide-react";
 import Link from "next/link";
 
 const fadeUp = {
@@ -45,43 +45,30 @@ const skillCategories = [
   }
 ];
 
-const timeline = [
-  {
-    year: "Sekarang",
-    title: "Mahasiswa Informatika",
-    subtitle: "Universitas",
-    desc: "Sedang menyelesaikan studi S1 dengan fokus riset pada pengembangan teknologi dan Machine Learning. Aktif di berbagai kepanitiaan dan organisasi kampus.",
-    icon: GraduationCap,
-    color: "text-blue-600",
-    bg: "bg-blue-100"
-  },
-  {
-    year: "2023 - Sekarang",
-    title: "Freelance Web Developer",
-    subtitle: "Self-Employed",
-    desc: "Membangun berbagai aplikasi berbasis web untuk klien lokal menggunakan tumpukan teknologi modern seperti Next.js dan Laravel.",
-    icon: Briefcase,
-    color: "text-amber-600",
-    bg: "bg-amber-100"
-  }
-];
+
 
 export default function KenalanPage() {
   const [settings, setSettings] = useState<any>(null);
+  const [journeys, setJourneys] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("/api/settings")
       .then((res) => res.json())
       .then((data) => setSettings(data))
       .catch((err) => console.error("Error fetching settings:", err));
+      
+    fetch("/api/journeys")
+      .then((res) => res.json())
+      .then((data) => setJourneys(data))
+      .catch((err) => console.error("Error fetching journeys:", err));
   }, []);
 
   const name = settings?.name || "Wahyudin";
   const avatarUrl = settings?.avatar_url;
 
   return (
-    <section className="min-h-screen pt-32 pb-24 px-6 md:px-14">
-      <div className="max-w-7xl mx-auto w-full">
+    <section className="min-h-screen pt-28 pb-16 px-6 md:px-14">
+      <div className="max-w-6xl mx-auto w-full">
         
         {/* Header Animasi */}
         <motion.div className="mb-12 text-center md:text-left" initial="hidden" animate="visible" variants={fadeUp} custom={0}>
@@ -102,7 +89,7 @@ export default function KenalanPage() {
             <div className="glass-card rounded-[2rem] shadow-card overflow-hidden flex flex-col">
               
               {/* Foto Profil (Full Width) */}
-              <div className="w-full aspect-[4/5] bg-ku-navy/5 relative overflow-hidden group">
+              <div className="w-full aspect-square bg-ku-navy/5 relative overflow-hidden group">
                 {avatarUrl ? (
                   <img src={`/api/image?url=${encodeURIComponent(avatarUrl)}`} alt={name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 ) : (
@@ -138,45 +125,8 @@ export default function KenalanPage() {
                   </div>
                 </div>
 
-                {/* Sosial Media (Expanding Hover Style) */}
-                <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
-                  {/* GitHub */}
-                  <a href="https://github.com/Wahyudin0701" target="_blank" className="group h-12 flex items-center bg-white border border-gray-100 rounded-full text-text-soft hover:bg-[#333] hover:text-white hover:border-[#333] transition-all duration-300 shadow-sm overflow-hidden px-3.5">
-                    <Github className="w-5 h-5 flex-shrink-0" />
-                    <span className="font-jakarta font-semibold text-sm whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-[200px] group-hover:ml-2.5 transition-all duration-500 ease-out">
-                      Wahyudin0701
-                    </span>
-                  </a>
-                  
-                  {/* Instagram */}
-                  <a href="https://instagram.com/why.udin_" target="_blank" className="group h-12 flex items-center bg-white border border-gray-100 rounded-full text-text-soft hover:bg-[#E1306C] hover:text-white hover:border-[#E1306C] transition-all duration-300 shadow-sm overflow-hidden px-3.5">
-                    <Instagram className="w-5 h-5 flex-shrink-0" />
-                    <span className="font-jakarta font-semibold text-sm whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-[200px] group-hover:ml-2.5 transition-all duration-500 ease-out">
-                      @why.udin_
-                    </span>
-                  </a>
-
-                  {/* TikTok */}
-                  <a href="https://tiktok.com/@why.udin_" target="_blank" className="group h-12 flex items-center bg-white border border-gray-100 rounded-full text-text-soft hover:bg-black hover:text-white hover:border-black transition-all duration-300 shadow-sm overflow-hidden px-3.5">
-                    <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5v3a3 3 0 0 1-3-3" />
-                    </svg>
-                    <span className="font-jakarta font-semibold text-sm whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-[200px] group-hover:ml-2.5 transition-all duration-500 ease-out">
-                      @why.udin_
-                    </span>
-                  </a>
-
-                  {/* Email */}
-                  <a href="mailto:muhammadwahyudin0701@gmail.com" className="group h-12 flex items-center bg-white border border-gray-100 rounded-full text-text-soft hover:bg-ku-navy hover:text-white hover:border-ku-navy transition-all duration-300 shadow-sm overflow-hidden px-3.5">
-                    <Mail className="w-5 h-5 flex-shrink-0" />
-                    <span className="font-jakarta font-semibold text-sm whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-[300px] group-hover:ml-2.5 transition-all duration-500 ease-out">
-                      muhammadwahyudin0701@gmail.com
-                    </span>
-                  </a>
-                </div>
-
                 {/* CTA Button */}
-                <Link href="/kirim" className="w-full flex items-center justify-center bg-ku-navy text-white font-jakarta font-bold text-sm py-3.5 rounded-xl hover:bg-ku-navy-light transition-all shadow-md mt-auto">
+                <Link href="/kirim" className="w-full flex items-center justify-center bg-ku-yellow text-ku-navy font-jakarta font-extrabold text-sm py-3.5 rounded-xl hover:bg-yellow-400 transition-all shadow hover:shadow-md hover:-translate-y-0.5 mt-10">
                   Kirim Pesan Sekarang
                 </Link>
               </div>
@@ -196,18 +146,18 @@ export default function KenalanPage() {
                   {name}
                 </h3>
                 <p className="font-jakarta text-ku-yellow font-bold text-xs md:text-sm uppercase tracking-wider">
-                  Developer & Mahasiswa
+                  Mahasiswa SI · Web Developer · Freelancer · Content Creator
                 </p>
               </div>
               <div className="space-y-5 font-jakarta text-text-soft leading-loose text-base md:text-lg">
                 <p>
-                  Halo! Saya Wahyudin, namun teman-teman lebih akrab memanggil saya <strong>Udin</strong>. Saya adalah mahasiswa Informatika yang memiliki ketertarikan mendalam pada pengembangan produk digital, organisasi kepemudaan, dan riset teknologi.
+                  Halo! Saya Wahyudin, namun teman-teman lebih akrab memanggil saya <strong>Udin</strong>. Saya adalah mahasiswa Sistem Informasi '23 di Universitas Jambi yang memiliki ketertarikan mendalam pada pengembangan web dan teknologi.
                 </p>
                 <p>
-                  Bagi saya, barisan kode bukan sekadar bahasa mesin, melainkan <span className="bg-ku-yellow/20 px-2 py-0.5 rounded font-semibold text-ku-navy">jembatan untuk memecahkan masalah nyata</span>. Itulah mengapa saya sangat menikmati proses membangun aplikasi—mulai dari alat bantu sederhana untuk teman kampus hingga sistem yang berpotensi memiliki dampak sosial yang lebih luas.
+                  Bagi saya, barisan kode bukan sekadar bahasa mesin, melainkan <span className="bg-ku-yellow/20 px-2 py-0.5 rounded font-semibold text-ku-navy">jembatan untuk memecahkan masalah nyata</span>. Itulah mengapa saya sangat menikmati proses membangun aplikasi — mulai dari proyek freelance untuk klien, hingga sistem yang memberikan kemudahan bagi banyak orang.
                 </p>
                 <p>
-                  Di luar layar komputer, saya juga aktif mengambil peran dalam berbagai organisasi kemahasiswaan dan kepanitiaan. Bertemu dengan banyak orang, bertukar ide, dan tumbuh bersama komunitas memberikan keseimbangan yang sempurna dalam perjalanan hidup saya.
+                  Di luar layar komputer, saya aktif di organisasi kemahasiswaan di kampus, serta mengekspresikan diri melalui konten vlog di media sosial. Bertukar ide dan tumbuh bersama orang-orang sekitar adalah bagian yang saya nikmati dari perjalanan ini.
                 </p>
               </div>
             </div>
@@ -247,24 +197,55 @@ export default function KenalanPage() {
               </div>
               
               <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent">
-                {timeline.map((item, i) => (
-                  <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                {journeys.length > 0 ? journeys.slice(0, 3).map((item, i) => {
+                  const catKey = (item.category || "experience") as string;
+                  let Icon = Briefcase;
+                  let bg = "bg-orange-100";
+                  let color = "text-orange-500";
+
+                  if (catKey === "education" || catKey === "Pendidikan") {
+                    Icon = GraduationCap;
+                    bg = "bg-blue-100";
+                    color = "text-blue-600";
+                  } else if (catKey === "organization" || catKey === "Organisasi") {
+                    Icon = Users;
+                    bg = "bg-ku-navy/10";
+                    color = "text-ku-navy";
+                  } else if (catKey === "committee" || catKey === "Kepanitiaan") {
+                    Icon = Calendar;
+                    bg = "bg-amber-100";
+                    color = "text-amber-600";
+                  } else if (catKey === "experience" || catKey === "Pengalaman") {
+                    Icon = Award;
+                    bg = "bg-emerald-100";
+                    color = "text-emerald-600";
+                  }
+
+                  const yearText = item.end_date ? `${item.start_date} — ${item.end_date}` : `${item.start_date} — Sekarang`;
+
+                  return (
+                  <div key={item.id || i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                     
                     {/* Timeline Dot (Icon) */}
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-white ${item.bg} ${item.color} shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2`}>
-                      <item.icon className="w-4 h-4" />
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-white ${bg} ${color} shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2`}>
+                      <Icon className="w-4 h-4" />
                     </div>
                     
                     {/* Timeline Card */}
                     <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-5 rounded-2xl bg-white border border-gray-100 shadow-sm group-hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-montserrat font-bold text-ku-navy">{item.title}</h4>
+                        <h4 className="font-montserrat font-bold text-ku-navy">{item.role}</h4>
                       </div>
-                      <p className="font-jakarta text-xs font-bold text-ku-yellow uppercase tracking-wider mb-3">{item.year} — {item.subtitle}</p>
-                      <p className="font-jakarta text-sm text-text-soft leading-relaxed">{item.desc}</p>
+                      <p className="font-jakarta text-xs font-bold text-ku-yellow uppercase tracking-wider mb-3">{yearText} — {item.institution}</p>
+                      <p className="font-jakarta text-sm text-text-soft leading-relaxed line-clamp-3">{item.description}</p>
                     </div>
                   </div>
-                ))}
+                  );
+                }) : (
+                  <div className="text-center py-8 relative z-10 bg-white">
+                    <p className="font-jakarta text-sm text-text-muted">Sedang memuat jejak langkah...</p>
+                  </div>
+                )}
               </div>
             </div>
 

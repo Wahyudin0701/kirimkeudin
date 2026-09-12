@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { User, Lock, Mail, Loader2, Save } from "lucide-react";
@@ -12,7 +12,7 @@ export default function ProfilPage() {
 
   const [form, setForm] = useState({
     name: "Wahyudin",
-    email: "kirimkeudin@gmail.com",
+    email: "muhammadwahyudin7105@gmail.com",
     password: "",
   });
 

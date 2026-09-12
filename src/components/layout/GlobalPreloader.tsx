@@ -54,10 +54,14 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
       {/* 
         Menambahkan key={pathname} ke children akan memaksa komponen halaman (seperti LandingClient) 
         untuk me-remount sehingga animasi masuk (fade-up) dari masing-masing halaman ter-trigger ulang.
+        Kita hanya me-mount children ketika preloader mulai menghilang (showPreloader = false)
+        agar animasi fadeUp di dalam children berjalan selaras dengan hilangnya preloader.
       */}
-      <div key={pathname} className="w-full">
-        {children}
-      </div>
+      {!showPreloader && (
+        <div key={pathname} className="w-full">
+          {children}
+        </div>
+      )}
     </>
   );
 }

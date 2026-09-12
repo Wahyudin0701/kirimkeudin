@@ -18,7 +18,7 @@ export default function PublicNavbar() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-14 py-3.5 md:py-4"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center px-6 md:px-14 py-3.5 md:py-4"
       style={{
         background: "rgba(255,255,255,0.75)",
         backdropFilter: "blur(16px)",
@@ -26,27 +26,29 @@ export default function PublicNavbar() {
         borderBottom: "1px solid rgba(255,255,255,0.8)",
       }}
     >
-      {/* Logo */}
-      <Link
-        href="/"
-        className="flex items-center gap-2.5 font-montserrat font-extrabold text-lg text-ku-navy tracking-tight hover:opacity-80 transition-opacity"
-      >
-        <div className="w-8 h-8 rounded-lg bg-ku-yellow flex items-center justify-center overflow-hidden flex-shrink-0">
-          <img 
-            src="/Logo_Kirimkeudin.png?v=2" 
-            alt="Logo" 
-            className="object-cover w-full h-full"
-            onError={(e) => { 
-              (e.currentTarget as HTMLImageElement).style.display = "none"; 
-              (e.currentTarget.parentElement as HTMLElement).innerHTML = '<span style="font-family:Montserrat;font-weight:800;font-size:14px;color:#0D2D6B">K</span>'; 
-            }} 
-          />
-        </div>
-        Kirim Ke Udin
-      </Link>
+      {/* Left: Logo */}
+      <div className="flex-1 flex justify-start">
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 font-montserrat font-extrabold text-lg text-ku-navy tracking-tight hover:opacity-80 transition-opacity"
+        >
+          <div className="w-8 h-8 rounded-lg bg-ku-yellow flex items-center justify-center overflow-hidden flex-shrink-0">
+            <img 
+              src="/Logo_Kirimkeudin.png?v=2" 
+              alt="Logo" 
+              className="object-cover w-full h-full"
+              onError={(e) => { 
+                (e.currentTarget as HTMLImageElement).style.display = "none"; 
+                (e.currentTarget.parentElement as HTMLElement).innerHTML = '<span style="font-family:Montserrat;font-weight:800;font-size:14px;color:#0D2D6B">K</span>'; 
+              }} 
+            />
+          </div>
+          Kirim Ke Udin
+        </Link>
+      </div>
 
-      {/* Nav Links */}
-      <div className="hidden md:flex items-center gap-6">
+      {/* Center: Nav Links */}
+      <div className="hidden md:flex items-center justify-center gap-6">
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
           return (
@@ -73,27 +75,29 @@ export default function PublicNavbar() {
         })}
       </div>
 
-      {/* CTA Button */}
-      <Link
-        href="/kirim"
-        className="flex items-center gap-1.5 bg-ku-yellow text-ku-navy font-jakarta font-bold text-xs md:text-sm px-4 md:px-5 py-2 md:py-2.5 rounded-full hover:bg-ku-yellow-dark transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-      >
-        Kirim Sesuatu
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="w-3.5 h-3.5"
-        >
-          <line x1="5" y1="12" x2="19" y2="12" />
-          <polyline points="12 5 19 12 12 19" />
-        </svg>
-      </Link>
+      {/* Right: CTA Button or Empty Space */}
+      <div className="flex-1 flex justify-end">
+        {pathname !== "/kirim" && (
+          <Link
+            href="/kirim"
+            className="flex items-center gap-2 bg-ku-yellow text-ku-navy font-jakarta font-bold text-xs md:text-sm px-5 py-2 md:py-2.5 rounded-xl hover:bg-yellow-400 transition-all duration-300 shadow hover:shadow-md hover:-translate-y-0.5 group"
+          >
+            Kirim Sesuatu
+            <svg 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="w-3.5 h-3.5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform"
+            >
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </Link>
+        )}
+      </div>
     </nav>
   );
 }

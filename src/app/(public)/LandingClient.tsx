@@ -143,19 +143,59 @@ function SectionHeader({
 // ── MAIN LANDING CLIENT ──────────────────────────────────────
 // ══════════════════════════════════════════════════════════════
 export default function LandingClient({ projects, achievements, journeys, stats, settings }: Props) {
-  const [preloaderDone, setPreloaderDone] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setPreloaderDone(true), 1800);
-    return () => clearTimeout(timer);
-  }, []);
-
   const name = settings?.name || "Wahyudin";
 
-  // Scroll-based parallax for decorative elements
+  // ── Scroll-based parallax for background blobs ──
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
   const bgY1 = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const bgY2 = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
+
+  // ── Mouse-tracking parallax motion values ──
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springConfig = { damping: 25, stiffness: 100, mass: 1 };
+  
+  // Element 1 (Top Left Yellow Orb) - High intensity, inverse direction
+  const x1 = useSpring(useTransform(mouseX, [-0.5, 0.5], [40, -40]), springConfig);
+  const y1 = useSpring(useTransform(mouseY, [-0.5, 0.5], [40, -40]), springConfig);
+  const floatY1 = useSpring(useTransform(scrollYProgress, [0, 1], [0, 150]), springConfig);
+
+  // Element 2 (Right Mid Navy Ring) - Medium intensity, same direction
+  const x2 = useSpring(useTransform(mouseX, [-0.5, 0.5], [-25, 25]), springConfig);
+  const y2 = useSpring(useTransform(mouseY, [-0.5, 0.5], [-25, 25]), springConfig);
+  const floatY2 = useSpring(useTransform(scrollYProgress, [0, 1], [0, -100]), springConfig);
+
+  // Element 3 (Left Bottom Blue Dot) - Low intensity, same direction
+  const x3 = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), springConfig);
+  const y3 = useSpring(useTransform(mouseY, [-0.5, 0.5], [-15, 15]), springConfig);
+  const floatY3 = useSpring(useTransform(scrollYProgress, [0, 1], [0, -200]), springConfig);
+
+  // Element 4 (Top Right Star/Plus) - High intensity, inverse direction
+  const x4 = useSpring(useTransform(mouseX, [-0.5, 0.5], [30, -30]), springConfig);
+  const y4 = useSpring(useTransform(mouseY, [-0.5, 0.5], [30, -30]), springConfig);
+  const floatY4 = useSpring(useTransform(scrollYProgress, [0, 1], [0, 80]), springConfig);
+
+  // Element 5 (Bottom Right Yellow Square) - Very high intensity, same direction
+  const x5 = useSpring(useTransform(mouseX, [-0.5, 0.5], [-50, 50]), springConfig);
+  const y5 = useSpring(useTransform(mouseY, [-0.5, 0.5], [-50, 50]), springConfig);
+  const floatY5 = useSpring(useTransform(scrollYProgress, [0, 1], [0, -250]), springConfig);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (typeof window === "undefined") return;
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    const x = clientX / innerWidth - 0.5;
+    const y = clientY / innerHeight - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
 
   return (
     <div ref={containerRef}>
@@ -163,7 +203,11 @@ export default function LandingClient({ projects, achievements, journeys, stats,
       {/* ═══════════════════════════════════════════════════════
           SECTION 1 — HERO (Soft, friendly, center-aligned)
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-start px-6 md:px-14 pt-32 md:pt-40 overflow-hidden">
+      <section 
+        className="relative min-h-screen flex flex-col items-center justify-start px-6 md:px-14 pt-32 md:pt-40 overflow-hidden"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
 
         {/* Soft warm gold blob — top left */}
         <motion.div
@@ -192,6 +236,45 @@ export default function LandingClient({ projects, achievements, journeys, stats,
           }}
         />
 
+        {/* ── Floating Parallax Decorations ── */}
+        
+        {/* 1. Yellow orb — top left */}
+        <motion.div
+          className="absolute hidden md:block top-40 left-[15%] w-12 h-12 rounded-full bg-ku-yellow/20 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(245,197,24,0.1)] pointer-events-none"
+          style={{ x: x1, y: floatY1, translateY: y1 }}
+        />
+
+        {/* 2. Navy ring — right middle */}
+        <motion.div
+          className="absolute hidden md:block top-[40%] right-[10%] w-16 h-16 rounded-full border-[3px] border-ku-navy/10 pointer-events-none"
+          style={{ x: x2, y: floatY2, translateY: y2 }}
+        />
+
+        {/* 3. Small blue dot — left mid-bottom */}
+        <motion.div
+          className="absolute hidden md:block bottom-1/3 left-[20%] w-4 h-4 rounded-full bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)] pointer-events-none"
+          style={{ x: x3, y: floatY3, translateY: y3 }}
+        />
+
+        {/* 4. Plus / star icon — top right */}
+        <motion.svg
+          className="absolute hidden md:block top-28 right-[22%] w-7 h-7 text-ku-yellow/70 pointer-events-none"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+          style={{ x: x4, y: floatY4, translateY: y4 }}
+          animate={{ rotate: [0, 90, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <path d="M12 2v20" /><path d="M2 12h20" />
+        </motion.svg>
+
+        {/* 5. Small yellow square — bottom right, slow drift */}
+        <motion.div
+          className="absolute hidden md:block bottom-[25%] right-[25%] w-6 h-6 bg-ku-yellow/30 rounded-md rotate-12 backdrop-blur-sm pointer-events-none"
+          style={{ x: x5, y: floatY5, translateY: y5 }}
+          animate={{ rotate: [12, 45, 12] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        />
+
         {/* ── Center Content ── */}
         <div className="relative z-10 text-center max-w-4xl mx-auto pb-10">
           {/* Eyebrow badge — now using glass-card style */}
@@ -199,7 +282,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
             className="inline-flex items-center gap-2 bg-white/70 border border-ku-navy/10 rounded-full px-4 py-2 mb-8 shadow-card"
             style={{ backdropFilter: "blur(16px)" }}
             initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : -20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
             <span className="w-2 h-2 rounded-full bg-ku-yellow animate-pulse" />
@@ -212,7 +295,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
           <motion.h1
             className="font-montserrat font-extrabold text-5xl md:text-6xl lg:text-7xl leading-[1.05] text-ku-navy mb-5"
             initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : 40 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
             Halo, Saya{" "}
@@ -232,7 +315,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                 className="absolute -bottom-1 left-0 right-0 h-[6px] rounded-full"
                 style={{ background: "linear-gradient(90deg, #F5C518, #fde68a, #F5C518)", backgroundSize: "200% 100%" }}
                 initial={{ scaleX: 0, originX: 0 }}
-                animate={{ scaleX: preloaderDone ? 1 : 0 }}
+                animate={{ scaleX: 1 }}
                 transition={{ duration: 0.8, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
               />
             </span>
@@ -242,13 +325,14 @@ export default function LandingClient({ projects, achievements, journeys, stats,
           <motion.div
             className="flex flex-wrap justify-center gap-2 mb-6"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
             {[
-              { label: "Mahasiswa Informatika", highlight: true },
+              { label: "Mahasiswa SI", highlight: true },
               { label: "Web Developer", highlight: false },
-              { label: "Penggerak Komunitas", highlight: false },
+              { label: "Freelancer", highlight: false },
+              { label: "Content Creator", highlight: false },
             ].map(({ label, highlight }) => (
               <span
                 key={label}
@@ -268,7 +352,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
           <motion.p
             className="font-jakarta text-text-soft text-sm md:text-base leading-relaxed max-w-lg mx-auto mb-10"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             Ruang digital saya — tempat menampilkan karya, mendokumentasikan perjalanan,
@@ -279,7 +363,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
           <motion.div
             className="flex flex-wrap justify-center gap-3"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Primary CTA */}
@@ -317,7 +401,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
         <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           initial={{ opacity: 0 }}
-          animate={{ opacity: preloaderDone ? 1 : 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.2 }}
         >
           <span className="font-jakarta text-text-muted/50 text-[11px] uppercase tracking-widest">Scroll</span>
@@ -338,7 +422,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
           <SectionHeader
             tag="Tentang Saya"
             title="Kenalan Dulu"
-            description="Mahasiswa Informatika yang passionate di bidang pengembangan web, organisasi, dan riset teknologi."
+            description="Mahasiswa Sistem Informasi yang berfokus pada pengembangan web dan teknologi untuk memecahkan masalah nyata."
             href="/kenalan"
             linkText="Selengkapnya"
           />
@@ -356,17 +440,16 @@ export default function LandingClient({ projects, achievements, journeys, stats,
               {/* Decorative Blur */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-ku-yellow/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
               <h3 className="font-montserrat font-bold text-2xl text-ku-navy mb-1.5 relative z-10">
-                Halo, saya {name} <span className="inline-block animate-wave origin-bottom-right">👋</span>
+                Halo, saya <span className="text-ku-yellow">{name}!</span>
               </h3>
               <p className="font-jakarta text-text-soft font-medium text-sm md:text-base mb-6 relative z-10">
-                Mahasiswa · Developer · Penggerak Komunitas
+                Mahasiswa SI · Web Developer · Freelancer · Content Creator
               </p>
               
               <p className="font-jakarta text-text-soft text-base md:text-lg leading-relaxed mb-10 relative z-10 max-w-2xl">
                 Saya percaya bahwa teknologi seharusnya memudahkan kehidupan nyata.
-                Itulah mengapa saya suka membangun hal-hal yang punya dampak langsung
-                — mulai dari aplikasi yang membantu teman-teman di kampus, hingga
-                proyek riset yang semoga bermanfaat lebih luas.
+                Itulah mengapa saya berfokus membangun solusi web yang berdampak langsung
+                — mulai dari proyek freelance, konten di media sosial, hingga sistem yang memberikan kemudahan bagi banyak orang.
               </p>
 
               {/* Premium Skills Pills */}
@@ -643,70 +726,65 @@ export default function LandingClient({ projects, achievements, journeys, stats,
           SECTION 6 — CTA / HUBUNGI
           ═══════════════════════════════════════════════════════ */}
       <section className="relative py-24 px-6 md:px-14 overflow-hidden">
-        {/* Decorative gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-ku-navy/[0.03] to-ku-navy/[0.06] pointer-events-none" />
-
-        <div className="max-w-6xl mx-auto relative">
+        <div className="max-w-5xl mx-auto relative">
           <motion.div
-            className="glass-card p-8 md:p-12 shadow-glass text-center relative overflow-hidden"
+            className="bg-ku-navy text-white p-8 md:p-14 shadow-2xl rounded-[2.5rem] text-center relative overflow-hidden"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeUp}
             custom={0}
           >
-            {/* Decorative circles */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-ku-yellow/10 pointer-events-none" />
-            <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-ku-navy/5 pointer-events-none" />
+            {/* Dark Mode Decorative elements */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-ku-yellow/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/3 pointer-events-none" />
+            
+            {/* Grid pattern overlay */}
+            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "32px 32px" }} />
 
             <div className="relative z-10">
               <motion.div
-                className="w-14 h-14 rounded-2xl bg-ku-yellow/20 flex items-center justify-center mx-auto mb-5"
-                animate={{ y: [0, -6, 0] }}
+                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-ku-yellow to-yellow-500 flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(245,197,24,0.3)] border border-yellow-400/50"
+                animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               >
-                <Send className="w-6 h-6 text-ku-navy" />
+                <Send className="w-7 h-7 text-ku-navy" />
               </motion.div>
 
-              <h2 className="font-montserrat font-extrabold text-3xl md:text-4xl text-ku-navy mb-3">
+              <h2 className="font-montserrat font-extrabold text-3xl md:text-5xl text-white mb-4 tracking-tight">
                 Punya Sesuatu untuk Saya?
               </h2>
-              <p className="font-jakarta text-text-soft text-sm md:text-base max-w-md mx-auto mb-8">
-                Kirimkan file, dokumen, pesan, atau apapun langsung ke inbox digital saya. Saya akan segera meresponnya!
+              <p className="font-jakarta text-white/80 text-sm md:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+                Kirimkan file, dokumen, tawaran proyek, atau sekadar menyapa langsung ke inbox digital saya. Saya akan segera meresponnya!
               </p>
 
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
+              <div className="flex flex-wrap justify-center gap-4 mb-10">
                 <Link
                   href="/kirim"
-                  className="flex items-center gap-2.5 bg-ku-navy text-white font-jakarta font-bold text-sm px-7 py-3.5 rounded-full shadow-glass-sm hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 group"
+                  className="flex items-center gap-2.5 bg-ku-yellow text-ku-navy font-jakarta font-extrabold text-sm md:text-base px-8 py-4 rounded-full shadow-[0_8px_20px_rgba(245,197,24,0.2)] hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(245,197,24,0.4)] transition-all duration-300 group"
                 >
                   <span>Kirim ke Udin</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/kenalan"
-                  className="flex items-center gap-2 border-2 border-ku-navy/20 text-ku-navy font-jakarta font-bold text-sm px-6 py-3.5 rounded-full hover:border-ku-navy hover:bg-white/60 transition-all duration-300"
+                  className="flex items-center gap-2 border-2 border-white/20 text-white font-jakarta font-bold text-sm md:text-base px-8 py-4 rounded-full hover:bg-white/10 hover:border-white/40 transition-all duration-300"
                 >
                   Kenalan Dulu
                 </Link>
               </div>
 
               {/* Contact links */}
-              <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-                {[
-                  { label: "Email", value: "hello@kirimkeudin.my.id", href: "mailto:hello@kirimkeudin.my.id", icon: Mail },
-                ].map((c) => (
-                  <a
-                    key={c.label}
-                    href={c.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 font-jakarta text-sm text-text-muted hover:text-ku-navy transition-colors"
-                  >
-                    <c.icon className="w-4 h-4" />
-                    <span>{c.value}</span>
-                  </a>
-                ))}
+              <div className="flex flex-wrap justify-center gap-4 md:gap-6 pt-6 border-t border-white/10">
+                <a
+                  href={`mailto:${settings?.email || "muhammadwahyudin7105@gmail.com"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 font-jakarta text-sm font-semibold text-white/60 hover:text-ku-yellow transition-colors"
+                >
+                  <Mail className="w-5 h-5" />
+                  <span>{settings?.email || "muhammadwahyudin7105@gmail.com"}</span>
+                </a>
               </div>
             </div>
           </motion.div>

@@ -19,10 +19,11 @@ export default async function KaryaPage() {
   return (
     <section className="min-h-screen pt-28 pb-16 px-6 md:px-14">
       <div className="max-w-6xl mx-auto w-full">
-        <div className="mb-10">
-          <p className="font-jakarta font-semibold text-ku-yellow text-xs md:text-sm uppercase tracking-widest mb-2 md:mb-3">Karya &amp; Proyek</p>
-          <h1 className="font-montserrat font-extrabold text-3xl md:text-4xl text-ku-navy mb-3 md:mb-4">Yang Sudah Dibuat</h1>
-          <p className="font-jakarta text-text-soft text-sm md:text-base max-w-xl">
+        <div className="mb-12 text-center md:text-left">
+          <h1 className="font-montserrat font-extrabold text-4xl md:text-5xl text-ku-navy mb-4 tracking-tight">
+            Karya &amp; <span className="text-ku-yellow">Proyek</span>
+          </h1>
+          <p className="font-jakarta text-text-soft text-base md:text-lg max-w-2xl mx-auto md:mx-0">
             Kumpulan proyek yang pernah dan sedang dikerjakan — dari tugas kuliah, proyek organisasi, hingga eksplorasi pribadi.
           </p>
         </div>

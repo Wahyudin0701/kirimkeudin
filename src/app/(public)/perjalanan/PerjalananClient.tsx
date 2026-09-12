@@ -207,23 +207,20 @@ export default function PerjalananClient({ journeys }: { journeys: Journey[] }) 
 
         {/* ── Header ── */}
         <motion.div
-          className="mb-10"
+          className="mb-12 text-center md:text-left"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
-          <p className="font-jakarta font-semibold text-ku-yellow text-xs md:text-sm uppercase tracking-widest mb-2 md:mb-3">
-            Perjalanan
-          </p>
-          <h1 className="font-montserrat font-extrabold text-3xl md:text-4xl text-ku-navy mb-3 md:mb-4">
-            Jejak Langkah
+          <h1 className="font-montserrat font-extrabold text-4xl md:text-5xl text-ku-navy mb-4 tracking-tight">
+            Jejak <span className="text-ku-yellow">Langkah</span>
           </h1>
-          <p className="font-jakarta text-text-soft text-sm md:text-base max-w-lg">
+          <p className="font-jakarta text-text-soft text-base md:text-lg max-w-2xl mx-auto md:mx-0">
             Setiap langkah membentuk versi saya hari ini — dari bangku sekolah, ruang rapat organisasi, hingga panggung kepanitiaan.
           </p>
 
           {/* ── Stat Ringkas ── */}
-          <div className="flex flex-wrap gap-3 mt-6">
+          <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-6">
             {(Object.entries(CATEGORY) as [CategoryKey, (typeof CATEGORY)[CategoryKey]][]).map(
               ([key, cfg]) => {
                 const count = countOf(key);
