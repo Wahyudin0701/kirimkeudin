@@ -1,0 +1,720 @@
+"use client";
+
+import { useRef, useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import {
+  GraduationCap,
+  Briefcase,
+  Trophy,
+  Code2,
+  Users,
+  MapPin,
+  Calendar,
+  Award,
+  ArrowRight,
+  Mail,
+  Send,
+} from "lucide-react";
+
+// ── Types ──────────────────────────────────────────────────
+type Project = {
+  id: string;
+  title: string;
+  description: string | null;
+  thumbnail_url: string | null;
+  tech_stack: string[];
+  project_url: string | null;
+  start_date: string | null;
+  end_date: string | null;
+};
+
+type Achievement = {
+  id: string;
+  name: string;
+  issuer: string | null;
+  category: string | null;
+  year: number | null;
+  photo_url: string | null;
+};
+
+type Journey = {
+  id: string;
+  category: string | null;
+  institution: string | null;
+  role: string | null;
+  description: string | null;
+  start_date: string | null;
+  end_date: string | null;
+};
+
+type Props = {
+  projects: Project[];
+  achievements: Achievement[];
+  journeys: Journey[];
+  stats: { projectCount: number; journeyCount: number; achievementCount: number };
+  settings?: any;
+};
+
+// ── Shared animation variants ──────────────────────────────
+const fadeUp = {
+  hidden: { opacity: 0, y: 50 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, delay: i * 0.12, ease: [0.16, 1, 0.3, 1] },
+  }),
+};
+
+// ── Category config for journeys ───────────────────────────
+const JOURNEY_CATEGORY: Record<string, { label: string; Icon: typeof GraduationCap; color: string; bg: string }> = {
+  education:    { label: "Pendidikan",  Icon: GraduationCap, color: "text-blue-600",    bg: "bg-blue-50" },
+  organization: { label: "Organisasi",  Icon: Users,         color: "text-ku-navy",     bg: "bg-ku-navy/8" },
+  committee:    { label: "Kepanitiaan", Icon: Calendar,      color: "text-amber-600",   bg: "bg-amber-50" },
+  experience:   { label: "Pengalaman",  Icon: Award,         color: "text-emerald-600", bg: "bg-emerald-50" },
+};
+
+// ── Skills ─────────────────────────────────────────────────
+const skillsData = [
+  { name: "Next.js", icon: "https://cdn.simpleicons.org/nextdotjs/000000" },
+  { name: "React", icon: "https://cdn.simpleicons.org/react/61DAFB" },
+  { name: "TypeScript", icon: "https://cdn.simpleicons.org/typescript/3178C6" },
+  { name: "Python", icon: "https://cdn.simpleicons.org/python/3776AB" },
+  { name: "Laravel", icon: "https://cdn.simpleicons.org/laravel/FF2D20" },
+  { name: "PostgreSQL", icon: "https://cdn.simpleicons.org/postgresql/4169E1" },
+  { name: "Tailwind CSS", icon: "https://cdn.simpleicons.org/tailwindcss/06B6D4" },
+  { name: "Figma", icon: "https://cdn.simpleicons.org/figma/F24E1E" },
+  { name: "Git", icon: "https://cdn.simpleicons.org/git/F05032" },
+  { name: "Linux", icon: "https://cdn.simpleicons.org/linux/000000" },
+  { name: "REST API", icon: "https://cdn.simpleicons.org/nodedotjs/339933" },
+  { name: "Machine Learning", icon: "https://cdn.simpleicons.org/tensorflow/FF6F00" },
+];
+
+
+
+// ── Section Header Component ───────────────────────────────
+function SectionHeader({
+  tag,
+  title,
+  description,
+  href,
+  linkText,
+}: {
+  tag: string;
+  title: string;
+  description: string;
+  href?: string;
+  linkText?: string;
+}) {
+  return (
+    <motion.div
+      className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-80px" }}
+      variants={fadeUp}
+      custom={0}
+    >
+      <div>
+        <p className="font-jakarta font-semibold text-ku-yellow text-xs md:text-sm uppercase tracking-widest mb-2">{tag}</p>
+        <h2 className="font-montserrat font-extrabold text-3xl md:text-4xl text-ku-navy mb-2">{title}</h2>
+        <p className="font-jakarta text-text-soft text-sm md:text-base max-w-lg">{description}</p>
+      </div>
+      {href && (
+        <Link
+          href={href}
+          className="flex items-center gap-2 font-jakarta font-bold text-sm text-ku-navy hover:text-ku-navy-light transition-colors flex-shrink-0 group"
+        >
+          {linkText}
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </Link>
+      )}
+    </motion.div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── MAIN LANDING CLIENT ──────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+export default function LandingClient({ projects, achievements, journeys, stats, settings }: Props) {
+  const [preloaderDone, setPreloaderDone] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setPreloaderDone(true), 1800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const name = settings?.name || "Wahyudin";
+
+  // Scroll-based parallax for decorative elements
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
+  const bgY1 = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const bgY2 = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
+
+  return (
+    <div ref={containerRef}>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 1 — HERO (Soft, friendly, center-aligned)
+          ═══════════════════════════════════════════════════════ */}
+      <section className="relative min-h-screen flex flex-col items-center justify-start px-6 md:px-14 pt-32 md:pt-40 overflow-hidden">
+
+        {/* Soft warm gold blob — top left */}
+        <motion.div
+          className="absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(245,197,24,0.22) 0%, rgba(245,197,24,0.06) 50%, transparent 70%)",
+            filter: "blur(40px)",
+            y: bgY1,
+          }}
+        />
+        {/* Soft navy blob — bottom right */}
+        <motion.div
+          className="absolute -bottom-24 -right-24 w-[400px] h-[400px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(13,45,107,0.10) 0%, rgba(13,45,107,0.03) 50%, transparent 70%)",
+            filter: "blur(50px)",
+            y: bgY2,
+          }}
+        />
+        {/* Subtle center glow */}
+        <div
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse, rgba(245,197,24,0.07) 0%, rgba(13,45,107,0.04) 40%, transparent 70%)",
+            filter: "blur(30px)",
+          }}
+        />
+
+        {/* ── Center Content ── */}
+        <div className="relative z-10 text-center max-w-4xl mx-auto pb-10">
+          {/* Eyebrow badge — now using glass-card style */}
+          <motion.div
+            className="inline-flex items-center gap-2 bg-white/70 border border-ku-navy/10 rounded-full px-4 py-2 mb-8 shadow-card"
+            style={{ backdropFilter: "blur(16px)" }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : -20 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="w-2 h-2 rounded-full bg-ku-yellow animate-pulse" />
+            <span className="font-jakarta font-semibold text-text-muted text-xs md:text-sm tracking-widest uppercase">
+              Personal Digital Hub
+            </span>
+          </motion.div>
+
+          {/* Main heading — back to ku-navy for readability */}
+          <motion.h1
+            className="font-montserrat font-extrabold text-5xl md:text-6xl lg:text-7xl leading-[1.05] text-ku-navy mb-5"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : 40 }}
+            transition={{ duration: 1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Halo, Saya{" "}
+            <span className="relative inline-block">
+              <span
+                className="relative z-10"
+                style={{
+                  background: "linear-gradient(135deg, #0D2D6B 0%, #1a3f8f 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                {name}.
+              </span>
+              {/* Yellow underline accent */}
+              <motion.span
+                className="absolute -bottom-1 left-0 right-0 h-[6px] rounded-full"
+                style={{ background: "linear-gradient(90deg, #F5C518, #fde68a, #F5C518)", backgroundSize: "200% 100%" }}
+                initial={{ scaleX: 0, originX: 0 }}
+                animate={{ scaleX: preloaderDone ? 1 : 0 }}
+                transition={{ duration: 0.8, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              />
+            </span>
+          </motion.h1>
+
+          {/* Role tags */}
+          <motion.div
+            className="flex flex-wrap justify-center gap-2 mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : 20 }}
+            transition={{ duration: 0.8, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {[
+              { label: "Mahasiswa Informatika", highlight: true },
+              { label: "Web Developer", highlight: false },
+              { label: "Penggerak Komunitas", highlight: false },
+            ].map(({ label, highlight }) => (
+              <span
+                key={label}
+                className={`font-jakarta font-semibold text-xs md:text-sm px-4 py-2 rounded-full transition-all ${
+                  highlight
+                    ? "bg-ku-yellow/20 text-ku-navy border border-ku-yellow/40"
+                    : "bg-white/60 text-text-soft border border-ku-navy/10"
+                }`}
+                style={{ backdropFilter: "blur(8px)" }}
+              >
+                {label}
+              </span>
+            ))}
+          </motion.div>
+
+          {/* Description */}
+          <motion.p
+            className="font-jakarta text-text-soft text-sm md:text-base leading-relaxed max-w-lg mx-auto mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : 20 }}
+            transition={{ duration: 0.9, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Ruang digital saya — tempat menampilkan karya, mendokumentasikan perjalanan,
+            dan menerima sesuatu dari kamu.
+          </motion.p>
+
+          {/* CTA buttons */}
+          <motion.div
+            className="flex flex-wrap justify-center gap-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: preloaderDone ? 1 : 0, y: preloaderDone ? 0 : 20 }}
+            transition={{ duration: 0.9, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Primary CTA */}
+            <div className="relative">
+              <div
+                className="absolute -inset-1.5 rounded-full opacity-30 blur-lg"
+                style={{
+                  background: "linear-gradient(90deg, #0D2D6B, #F5C518, #0D2D6B)",
+                  backgroundSize: "200% 200%",
+                  animation: "gradientMove 3s infinite linear",
+                }}
+              />
+              <Link
+                href="/karya"
+                className="relative flex items-center gap-2.5 bg-ku-navy text-white font-jakarta font-bold text-sm px-7 py-3.5 rounded-full shadow-glass-sm hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 group"
+              >
+                <span>Lihat Karya</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+            {/* Secondary CTA */}
+            <Link
+              href="/kirim"
+              className="flex items-center gap-2 bg-white/70 border border-ku-navy/15 text-ku-navy font-jakarta font-bold text-sm px-6 py-3.5 rounded-full hover:bg-white hover:shadow-card transition-all duration-300"
+              style={{ backdropFilter: "blur(8px)" }}
+            >
+              Kirim Sesuatu
+            </Link>
+          </motion.div>
+        </div>
+
+
+
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: preloaderDone ? 1 : 0 }}
+          transition={{ duration: 1, delay: 1.2 }}
+        >
+          <span className="font-jakarta text-text-muted/50 text-[11px] uppercase tracking-widest">Scroll</span>
+          <motion.div
+            className="w-0.5 h-8 bg-gradient-to-b from-ku-navy/30 to-transparent"
+            animate={{ scaleY: [0.5, 1, 0.5], opacity: [0.3, 0.7, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+        </motion.div>
+      </section>
+
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 2 — ABOUT / TENTANG
+          ═══════════════════════════════════════════════════════ */}
+      <section className="relative py-20 px-6 md:px-14 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <SectionHeader
+            tag="Tentang Saya"
+            title="Kenalan Dulu"
+            description="Mahasiswa Informatika yang passionate di bidang pengembangan web, organisasi, dan riset teknologi."
+            href="/kenalan"
+            linkText="Selengkapnya"
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-stretch">
+            {/* Premium Bio Card */}
+            <motion.div
+              className="lg:col-span-7 xl:col-span-8 glass-card p-8 md:p-10 shadow-card rounded-[2rem] flex flex-col justify-center relative overflow-hidden group"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              variants={fadeUp}
+              custom={1}
+            >
+              {/* Decorative Blur */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-ku-yellow/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+              <h3 className="font-montserrat font-bold text-2xl text-ku-navy mb-1.5 relative z-10">
+                Halo, saya {name} <span className="inline-block animate-wave origin-bottom-right">👋</span>
+              </h3>
+              <p className="font-jakarta text-text-soft font-medium text-sm md:text-base mb-6 relative z-10">
+                Mahasiswa · Developer · Penggerak Komunitas
+              </p>
+              
+              <p className="font-jakarta text-text-soft text-base md:text-lg leading-relaxed mb-10 relative z-10 max-w-2xl">
+                Saya percaya bahwa teknologi seharusnya memudahkan kehidupan nyata.
+                Itulah mengapa saya suka membangun hal-hal yang punya dampak langsung
+                — mulai dari aplikasi yang membantu teman-teman di kampus, hingga
+                proyek riset yang semoga bermanfaat lebih luas.
+              </p>
+
+              {/* Premium Skills Pills */}
+              <div className="relative z-10 mt-auto">
+                <h4 className="font-montserrat font-bold text-sm text-ku-navy mb-4">Core Skills & Teknologi</h4>
+                <div className="flex flex-wrap gap-3">
+                  {skillsData.map((skill) => (
+                    <motion.div
+                      key={skill.name}
+                      whileHover={{ scale: 1.05, y: -4 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="font-jakarta font-semibold text-xs md:text-sm px-4 py-2.5 rounded-xl bg-white border border-gray-100 text-text-soft hover:border-ku-yellow hover:text-ku-navy shadow-sm hover:shadow-lg hover:shadow-ku-yellow/20 transition-colors cursor-default flex items-center gap-2.5 group"
+                    >
+                      <img 
+                        src={skill.icon} 
+                        alt={skill.name} 
+                        className="w-4 h-4 md:w-5 md:h-5 object-contain group-hover:scale-110 transition-transform duration-300"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} 
+                      />
+                      <span>{skill.name}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Premium Big Photo Card */}
+            <motion.div
+              className="lg:col-span-5 xl:col-span-4 relative rounded-[2rem] overflow-hidden shadow-card group min-h-[350px] md:min-h-[450px] flex flex-col justify-end p-6"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              variants={fadeUp}
+              custom={2}
+            >
+              {/* Background Image Layer */}
+              <div className="absolute inset-0 z-0">
+                {settings?.avatar_url ? (
+                  <>
+                    <img 
+                      src={`/api/image?url=${encodeURIComponent(settings.avatar_url)}`} 
+                      alt={name} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    />
+                    {/* Subtle Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-ku-navy/80 via-ku-navy/20 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500" />
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-ku-navy to-blue-900 text-white text-9xl font-montserrat font-extrabold">
+                    {name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              
+              {/* Floating Action Button (Hover Reveal) */}
+              <div className="relative z-10 w-full bg-white/80 backdrop-blur-md border border-white/50 p-4 rounded-2xl flex items-center justify-between shadow-xl translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                <div className="flex-1 min-w-0 pr-4">
+                  <p className="font-jakarta font-extrabold text-ku-navy text-sm truncate">Lihat Profil Lengkap</p>
+                  <p className="font-jakarta text-text-soft text-xs truncate">Kenali saya lebih jauh</p>
+                </div>
+                <Link href="/kenalan" className="w-10 h-10 flex-shrink-0 rounded-xl bg-ku-yellow flex items-center justify-center text-ku-navy hover:scale-110 transition-transform shadow-md cursor-pointer pointer-events-auto">
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 3 — PROYEK / KARYA
+          ═══════════════════════════════════════════════════════ */}
+      <section className="relative py-20 px-6 md:px-14 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <SectionHeader
+            tag="Karya & Proyek"
+            title="Yang Sudah Dibuat"
+            description="Proyek-proyek yang pernah dan sedang dikerjakan."
+            href="/karya"
+            linkText="Lihat Semua Karya"
+          />
+
+          {projects.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="font-montserrat font-extrabold text-2xl text-ku-navy/20 mb-2">Segera hadir</p>
+              <p className="font-jakarta text-text-muted text-sm">Proyek-proyek sedang disiapkan. Nantikan ya!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((project, i) => (
+                <motion.div
+                  key={project.id}
+                  className="glass-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 group flex flex-col"
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-60px" }}
+                  variants={fadeUp}
+                  custom={i + 1}
+                >
+                  {/* Thumbnail */}
+                  <div className="w-full aspect-[16/10] bg-gradient-to-br from-ku-navy/8 to-ku-navy/3 flex items-center justify-center overflow-hidden">
+                    {project.thumbnail_url ? (
+                      <img
+                        src={`/api/image?url=${encodeURIComponent(project.thumbnail_url)}`}
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <Briefcase className="w-10 h-10 text-ku-navy/15" />
+                    )}
+                  </div>
+                  {/* Content */}
+                  <div className="p-5 flex flex-col flex-1">
+                    <h3 className="font-montserrat font-extrabold text-base text-ku-navy mb-1.5 group-hover:text-ku-navy-light transition-colors">
+                      {project.title}
+                    </h3>
+                    {project.description && (
+                      <p className="font-jakarta text-text-muted text-xs leading-relaxed mb-3 line-clamp-2">
+                        {project.description}
+                      </p>
+                    )}
+                    {/* Tech Stack */}
+                    <div className="flex flex-wrap gap-1.5 mt-auto">
+                      {project.tech_stack.slice(0, 4).map((tech) => (
+                        <span key={tech} className="font-jakarta text-[10px] font-semibold px-2 py-1 rounded-md bg-ku-navy/6 text-ku-navy/70">
+                          {tech}
+                        </span>
+                      ))}
+                      {project.tech_stack.length > 4 && (
+                        <span className="font-jakarta text-[10px] font-semibold px-2 py-1 rounded-md bg-ku-navy/6 text-ku-navy/70">
+                          +{project.tech_stack.length - 4}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 4 — PENCAPAIAN
+          ═══════════════════════════════════════════════════════ */}
+      <section className="relative py-20 px-6 md:px-14 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <SectionHeader
+            tag="Pencapaian"
+            title="Yang Berhasil Diraih"
+            description="Sertifikat, penghargaan, dan pencapaian yang menjadi bagian dari perjalanan."
+            href="/pencapaian"
+            linkText="Lihat Semua"
+          />
+
+          {achievements.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="font-montserrat font-extrabold text-2xl text-ku-navy/20 mb-2">Segera hadir</p>
+              <p className="font-jakarta text-text-muted text-sm">Pencapaian sedang disiapkan.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {achievements.map((ach, i) => (
+                <motion.div
+                  key={ach.id}
+                  className="glass-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 group"
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-60px" }}
+                  variants={fadeUp}
+                  custom={i + 1}
+                >
+                  {/* Photo */}
+                  <div className="w-full aspect-[4/3] bg-gradient-to-br from-ku-yellow/10 to-ku-navy/5 flex items-center justify-center overflow-hidden">
+                    {ach.photo_url ? (
+                      <img
+                        src={`/api/image?url=${encodeURIComponent(ach.photo_url)}`}
+                        alt={ach.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <Trophy className="w-8 h-8 text-ku-yellow/30" />
+                    )}
+                  </div>
+                  {/* Info */}
+                  <div className="p-4">
+                    <h3 className="font-montserrat font-extrabold text-sm text-ku-navy mb-1 line-clamp-2">{ach.name}</h3>
+                    <p className="font-jakarta text-text-muted text-xs">
+                      {ach.issuer}{ach.year ? ` · ${ach.year}` : ""}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 5 — PERJALANAN (Mini Timeline)
+          ═══════════════════════════════════════════════════════ */}
+      <section className="relative py-20 px-6 md:px-14 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <SectionHeader
+            tag="Perjalanan"
+            title="Jejak Langkah"
+            description="Pendidikan, organisasi, dan pengalaman yang membentuk saya hari ini."
+            href="/perjalanan"
+            linkText="Lihat Jejak Lengkap"
+          />
+
+          {journeys.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="font-montserrat font-extrabold text-2xl text-ku-navy/20 mb-2">Segera hadir</p>
+              <p className="font-jakarta text-text-muted text-sm">Perjalanan sedang didokumentasikan.</p>
+            </div>
+          ) : (
+            <div className="relative">
+              {/* Vertical line */}
+              <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gradient-to-b from-ku-navy/20 via-ku-yellow/30 to-transparent hidden md:block" />
+
+              <div className="space-y-6">
+                {journeys.map((j, i) => {
+                  const catKey = (j.category ?? "experience") as string;
+                  const cat = JOURNEY_CATEGORY[catKey] ?? JOURNEY_CATEGORY.experience;
+                  const Icon = cat.Icon;
+                  const dateLabel = j.start_date
+                    ? j.end_date ? `${j.start_date} — ${j.end_date}` : `${j.start_date} — sekarang`
+                    : null;
+
+                  return (
+                    <motion.div
+                      key={j.id}
+                      className="relative flex gap-5 md:gap-8 md:pl-0"
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, margin: "-60px" }}
+                      variants={fadeUp}
+                      custom={i + 1}
+                    >
+                      {/* Timeline dot */}
+                      <div className="relative flex flex-col items-center flex-shrink-0 w-10 hidden md:flex">
+                        <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center bg-white ring-2 ring-ku-navy/20 shadow-sm`}>
+                          <Icon className={`w-[18px] h-[18px] ${cat.color}`} />
+                        </div>
+                      </div>
+
+                      {/* Content card */}
+                      <div className="glass-card p-5 shadow-card flex-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-jakarta font-semibold border ${cat.bg} ${cat.color}`}>
+                            <Icon className="w-3 h-3 md:hidden" />
+                            {cat.label}
+                          </span>
+                          {dateLabel && (
+                            <span className="font-jakarta text-[11px] text-text-muted">{dateLabel}</span>
+                          )}
+                        </div>
+                        <h3 className="font-montserrat font-extrabold text-base text-ku-navy">{j.role || j.institution}</h3>
+                        {j.institution && j.role && (
+                          <p className="font-jakarta text-text-muted text-xs mt-0.5">{j.institution}</p>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 6 — CTA / HUBUNGI
+          ═══════════════════════════════════════════════════════ */}
+      <section className="relative py-24 px-6 md:px-14 overflow-hidden">
+        {/* Decorative gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-ku-navy/[0.03] to-ku-navy/[0.06] pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto relative">
+          <motion.div
+            className="glass-card p-8 md:p-12 shadow-glass text-center relative overflow-hidden"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeUp}
+            custom={0}
+          >
+            {/* Decorative circles */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-ku-yellow/10 pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-ku-navy/5 pointer-events-none" />
+
+            <div className="relative z-10">
+              <motion.div
+                className="w-14 h-14 rounded-2xl bg-ku-yellow/20 flex items-center justify-center mx-auto mb-5"
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Send className="w-6 h-6 text-ku-navy" />
+              </motion.div>
+
+              <h2 className="font-montserrat font-extrabold text-3xl md:text-4xl text-ku-navy mb-3">
+                Punya Sesuatu untuk Saya?
+              </h2>
+              <p className="font-jakarta text-text-soft text-sm md:text-base max-w-md mx-auto mb-8">
+                Kirimkan file, dokumen, pesan, atau apapun langsung ke inbox digital saya. Saya akan segera meresponnya!
+              </p>
+
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                <Link
+                  href="/kirim"
+                  className="flex items-center gap-2.5 bg-ku-navy text-white font-jakarta font-bold text-sm px-7 py-3.5 rounded-full shadow-glass-sm hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 group"
+                >
+                  <span>Kirim ke Udin</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  href="/kenalan"
+                  className="flex items-center gap-2 border-2 border-ku-navy/20 text-ku-navy font-jakarta font-bold text-sm px-6 py-3.5 rounded-full hover:border-ku-navy hover:bg-white/60 transition-all duration-300"
+                >
+                  Kenalan Dulu
+                </Link>
+              </div>
+
+              {/* Contact links */}
+              <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+                {[
+                  { label: "Email", value: "hello@kirimkeudin.my.id", href: "mailto:hello@kirimkeudin.my.id", icon: Mail },
+                ].map((c) => (
+                  <a
+                    key={c.label}
+                    href={c.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 font-jakarta text-sm text-text-muted hover:text-ku-navy transition-colors"
+                  >
+                    <c.icon className="w-4 h-4" />
+                    <span>{c.value}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer spacer */}
+      <div className="h-8" />
+    </div>
+  );
+}

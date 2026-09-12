@@ -1,0 +1,38 @@
+# Kirim Ke Udin — Personal Digital Hub
+
+## Profile Configuration
+# Edit file ini untuk mengubah konten hardcode di halaman publik
+# Tidak perlu masuk ke dashboard untuk mengubah informasi di sini
+
+profile:
+  name: "Wahyudin"
+  nickname: "Udin"
+  tagline: "Mahasiswa, Developer, & Penggerak Komunitas."
+  bio: |
+    Halo! Saya Wahyudin, mahasiswa yang passionate di bidang teknologi dan organisasi.
+    Saya suka membangun hal-hal baru, belajar dari pengalaman, dan berbagi dengan orang lain.
+  location: "Indonesia"
+  status: "Mahasiswa aktif"
+  avatar: "/images/avatar.jpg"
+
+contact:
+  email: "hello@kirimkeudin.my.id"
+  instagram: "https://instagram.com/wahyudin"
+  github: "https://github.com/wahyudin"
+  linkedin: "https://linkedin.com/in/wahyudin"
+  whatsapp: ""    # kosongkan jika tidak ingin ditampilkan
+
+hero:
+  headline: "Halo, Saya\nWahyudin. 👋"
+  subheadline: "Mahasiswa, Developer, & Penggerak Komunitas."
+  cta_primary:
+    label: "Lihat Karya"
+    href: "/karya"
+  cta_secondary:
+    label: "Kirim Sesuatu"
+    href: "/kirim"
+
+seo:
+  title: "Kirim Ke Udin — Personal Digital Hub"
+  description: "Ruang digital pribadi Wahyudin. Karya, perjalanan, pencapaian, dan cara menghubungi."
+  url: "https://kirimkeudin.my.id"

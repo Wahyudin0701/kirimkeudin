@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Project {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title         String    @db.VarChar(255)
+  description   String?
+  thumbnail_url String?   @db.VarChar(500)
+  tech_stack    String[]
+  project_url   String?   @db.VarChar(500)
+  github_url    String?   @db.VarChar(500)
+  start_date    String?   @db.VarChar(50)
+  end_date      String?   @db.VarChar(50) // null = ongoing
+  sort_order    Int       @default(0)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @default(now()) @updatedAt
+
+  @@map("projects")
+}
+
+model Journey {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category    String?   @db.VarChar(50) // education|organization|committee|experience
+  institution String?   @db.VarChar(255)
+  role        String?   @db.VarChar(255)
+  description String?
+  start_date  String?   @db.VarChar(50)
+  end_date    String?   @db.VarChar(50) // null = masih aktif
+  location    String?   @db.VarChar(255)
+  sort_order  Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @default(now()) @updatedAt
+
+  @@map("journeys")
+}
+
+model Achievement {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String    @db.VarChar(255)
+  issuer         String?   @db.VarChar(255)
+  category       String?   @db.VarChar(50) // certificate|award|competition
+  year           Int?
+  photo_url      String?   @db.VarChar(500)
+  credential_url String?   @db.VarChar(500)
+  sort_order     Int       @default(0)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @default(now()) @updatedAt
+
+  @@map("achievements")
+}
+
+model VaultFolder {
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String        @db.VarChar(255)
+  parent_id  String?       @db.Uuid
+  parent     VaultFolder?  @relation("FolderToFolder", fields: [parent_id], references: [id])
+  children   VaultFolder[] @relation("FolderToFolder")
+  icon       String?       @db.VarChar(50)
+  color      String?       @db.VarChar(20)
+  created_at DateTime      @default(now())
+  updated_at DateTime      @default(now()) @updatedAt
+  files      VaultFile[]
+
+  @@map("vault_folders")
+}
+
+model VaultFile {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  display_name  String?      @db.VarChar(255)
+  original_name String?      @db.VarChar(255)
+  file_key      String?      @db.VarChar(500)
+  file_url      String?      @db.VarChar(500)
+  thumbnail_url String?      @db.VarChar(500)
+  file_size     BigInt?
+  mime_type     String?      @db.VarChar(100)
+  folder_id     String?      @db.Uuid
+  folder        VaultFolder? @relation(fields: [folder_id], references: [id])
+  tags          String[]
+  is_favorite   Boolean      @default(false)
+  is_archived   Boolean      @default(false)
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @default(now()) @updatedAt
+
+  @@map("vault_files")
+}
+
+model InboxSubmission {
+  id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sender_name    String      @db.VarChar(255)
+  sender_email   String?     @db.VarChar(255)
+  sender_contact String?     @db.VarChar(255)
+  purpose        String?     @db.VarChar(255)
+  message        String
+  status         String      @default("unread") @db.VarChar(20) // unread|read|archived
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @default(now()) @updatedAt
+  files          InboxFile[]
+
+  @@map("inbox_submissions")
+}
+
+model InboxFile {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  submission_id String?         @db.Uuid
+  submission    InboxSubmission? @relation(fields: [submission_id], references: [id], onDelete: Cascade)
+  original_name String?         @db.VarChar(255)
+  file_key      String?         @db.VarChar(500)
+  file_url      String?         @db.VarChar(500)
+  file_size     BigInt?
+  mime_type     String?         @db.VarChar(100)
+  created_at    DateTime        @default(now())
+
+  @@map("inbox_files")
+}
+
+model Settings {
+  id          String   @id @default("default")
+  name        String   @default("Wahyudin")
+  email       String   @default("kirimkeudin@gmail.com")
+  avatar_url  String?  @db.VarChar(500)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+
+  @@map("settings")
+}
+
