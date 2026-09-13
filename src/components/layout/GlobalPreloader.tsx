@@ -96,20 +96,12 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
                 )}
               </div>
 
-              {/* Progress Bar */}
+              {/* Progress Text */}
               <motion.div 
                 className="flex flex-col items-center mt-2 opacity-0"
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.3 }}
               >
-                <div className="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden mb-2">
-                  <motion.div 
-                    className="h-full bg-ku-navy rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ ease: "easeOut" }}
-                  />
-                </div>
                 <span className="font-jakarta font-bold text-xs text-text-muted">
                   {progress === 100 ? "Selesai!" : `Memuat... ${progress}%`}
                 </span>
