@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -187,67 +187,6 @@ export default function KenalanPage() {
               </div>
             </div>
 
-            {/* Bagian Perjalanan (Timeline) */}
-            <div className="glass-card p-8 md:p-10 rounded-[2rem] shadow-card">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="font-montserrat font-extrabold text-2xl text-ku-navy">Jejak Langkah</h3>
-                <Link href="/perjalanan" className="text-ku-navy font-jakarta font-bold text-sm flex items-center hover:text-ku-yellow transition-colors">
-                  Lihat Semua <ChevronRight className="w-4 h-4 ml-1" />
-                </Link>
-              </div>
-              
-              <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent">
-                {journeys.length > 0 ? journeys.slice(0, 3).map((item, i) => {
-                  const catKey = (item.category || "experience") as string;
-                  let Icon = Briefcase;
-                  let bg = "bg-orange-100";
-                  let color = "text-orange-500";
-
-                  if (catKey === "education" || catKey === "Pendidikan") {
-                    Icon = GraduationCap;
-                    bg = "bg-blue-100";
-                    color = "text-blue-600";
-                  } else if (catKey === "organization" || catKey === "Organisasi") {
-                    Icon = Users;
-                    bg = "bg-ku-navy/10";
-                    color = "text-ku-navy";
-                  } else if (catKey === "committee" || catKey === "Kepanitiaan") {
-                    Icon = Calendar;
-                    bg = "bg-amber-100";
-                    color = "text-amber-600";
-                  } else if (catKey === "experience" || catKey === "Pengalaman") {
-                    Icon = Award;
-                    bg = "bg-emerald-100";
-                    color = "text-emerald-600";
-                  }
-
-                  const yearText = item.end_date ? `${item.start_date} — ${item.end_date}` : `${item.start_date} — Sekarang`;
-
-                  return (
-                  <div key={item.id || i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                    
-                    {/* Timeline Dot (Icon) */}
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-white ${bg} ${color} shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    
-                    {/* Timeline Card */}
-                    <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-5 rounded-2xl bg-white border border-gray-100 shadow-sm group-hover:shadow-md transition-shadow">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-montserrat font-bold text-ku-navy">{item.role}</h4>
-                      </div>
-                      <p className="font-jakarta text-xs font-bold text-ku-yellow uppercase tracking-wider mb-3">{yearText} — {item.institution}</p>
-                      <p className="font-jakarta text-sm text-text-soft leading-relaxed line-clamp-3">{item.description}</p>
-                    </div>
-                  </div>
-                  );
-                }) : (
-                  <div className="text-center py-8 relative z-10 bg-white">
-                    <p className="font-jakarta text-sm text-text-muted">Sedang memuat jejak langkah...</p>
-                  </div>
-                )}
-              </div>
-            </div>
 
           </motion.div>
         </div>

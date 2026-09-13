@@ -65,12 +65,15 @@ h1, h2, h3, h4, h5, h6 {
     rgba(255, 255, 255, 0.75) 0%,
     rgba(255, 255, 255, 0.35) 100%
   );
-  backdrop-filter: blur(48px) saturate(150%);
-  -webkit-backdrop-filter: blur(48px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border: 1.5px solid rgba(255, 255, 255, 0.9);
   border-radius: 28px;
   position: relative;
   overflow: hidden;
+  /* Promote to own compositing layer so Framer Motion animate smoothly */
+  will-change: transform, opacity;
+  isolation: isolate;
 }
 
 /* Shimmer sweep on glass card */

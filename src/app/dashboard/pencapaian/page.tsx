@@ -48,13 +48,13 @@ function AchievementForm({ initial, onSave, onCancel }: { initial: Omit<Achievem
       </div>
       <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-          <div><label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5">Kategori</label><select value={form.category ?? "certificate"} onChange={(e) => set("category", e.target.value)} className="w-full font-jakarta text-sm px-4 py-2.5 md:py-3 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy transition-all">{CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></div>
-          <div><label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5">Tahun</label><input value={form.year ?? ""} onChange={(e) => set("year", e.target.value)} className="w-full font-jakarta text-sm px-4 py-2.5 md:py-3 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy transition-all" placeholder="2026" /></div>
+          <div><label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5">Kategori</label><select value={form.category ?? "certificate"} onChange={(e) => set("category", e.target.value)} className="w-full font-jakarta text-sm px-4 py-2.5 md:py-3 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy transition-shadow">{CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></div>
+          <div><label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5">Tahun</label><input value={form.year ?? ""} onChange={(e) => set("year", e.target.value)} className="w-full font-jakarta text-sm px-4 py-2.5 md:py-3 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy transition-shadow" placeholder="2026" /></div>
         </div>
-        <div><label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5">Nama Pencapaian *</label><input required value={form.name} onChange={(e) => set("name", e.target.value)} className="w-full font-jakarta text-sm px-4 py-2.5 md:py-3 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy transition-all" placeholder="Nama sertifikat / penghargaan" /></div>
-        <div><label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5">Dikeluarkan oleh</label><input value={form.issuer ?? ""} onChange={(e) => set("issuer", e.target.value)} className="w-full font-jakarta text-sm px-4 py-2.5 md:py-3 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy transition-all" placeholder="Google, Dicoding, Universitas..." /></div>
+        <div><label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5">Nama Pencapaian *</label><input required value={form.name} onChange={(e) => set("name", e.target.value)} className="w-full font-jakarta text-sm px-4 py-2.5 md:py-3 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy transition-shadow" placeholder="Nama sertifikat / penghargaan" /></div>
+        <div><label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5">Dikeluarkan oleh</label><input value={form.issuer ?? ""} onChange={(e) => set("issuer", e.target.value)} className="w-full font-jakarta text-sm px-4 py-2.5 md:py-3 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy transition-shadow" placeholder="Google, Dicoding, Universitas..." /></div>
         <div><label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5">Foto / Sertifikat (Opsional)</label>
-          <label className={`flex flex-col items-center justify-center w-full gap-2 px-4 py-5 rounded-xl border-2 border-dashed transition-all cursor-pointer ${uploadingImage ? "border-ku-navy/30 bg-ku-navy/5 cursor-not-allowed" : "border-ku-navy/20 bg-ku-bg hover:border-ku-navy/50 hover:bg-ku-navy/5"}`}>
+          <label className={`flex flex-col items-center justify-center w-full gap-2 px-4 py-5 rounded-xl border-2 border-dashed transition-shadow cursor-pointer ${uploadingImage ? "border-ku-navy/30 bg-ku-navy/5 cursor-not-allowed" : "border-ku-navy/20 bg-ku-bg hover:border-ku-navy/50 hover:bg-ku-navy/5"}`}>
             <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} className="sr-only" />
             {uploadingImage ? (
               <div className="flex items-center gap-2 text-ku-navy">
@@ -89,8 +89,8 @@ function AchievementForm({ initial, onSave, onCancel }: { initial: Omit<Achievem
           </label>
         </div>
         <div className="flex gap-2 md:gap-3 pt-4">
-          <button type="button" onClick={onCancel} className="flex-1 font-jakarta font-semibold text-xs md:text-sm py-3 md:py-3.5 rounded-xl border-2 border-ku-navy/20 text-text-soft hover:border-ku-navy transition-all">Batal</button>
-          <button type="submit" disabled={saving} className="flex-1 flex items-center justify-center gap-2 font-jakarta font-bold text-xs md:text-sm py-3 md:py-3.5 rounded-xl bg-ku-navy text-white hover:bg-ku-navy-light disabled:opacity-60 transition-all">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Simpan"}</button>
+          <button type="button" onClick={onCancel} className="flex-1 font-jakarta font-semibold text-xs md:text-sm py-3 md:py-3.5 rounded-xl border-2 border-ku-navy/20 text-text-soft hover:border-ku-navy transition-shadow">Batal</button>
+          <button type="submit" disabled={saving} className="flex-1 flex items-center justify-center gap-2 font-jakarta font-bold text-xs md:text-sm py-3 md:py-3.5 rounded-xl bg-ku-navy text-white hover:bg-ku-navy-light disabled:opacity-60 transition-shadow">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Simpan"}</button>
         </div>
       </form>
     </motion.div>
@@ -143,7 +143,7 @@ export default function DashboardPencapaianPage() {
           <h1 className="font-montserrat font-extrabold text-2xl md:text-3xl text-ku-navy">Pencapaian</h1>
           <p className="font-jakarta text-xs md:text-sm text-text-muted mt-1">{items.length} data terdaftar</p>
         </div>
-        <button onClick={() => setView("add")} className="flex items-center justify-center gap-2 bg-ku-navy text-white font-jakarta font-bold text-xs md:text-sm px-4 md:px-5 py-2.5 md:py-3 rounded-xl hover:bg-ku-navy-light transition-all shadow-sm">
+        <button onClick={() => setView("add")} className="flex items-center justify-center gap-2 bg-ku-navy text-white font-jakarta font-bold text-xs md:text-sm px-4 md:px-5 py-2.5 md:py-3 rounded-xl hover:bg-ku-navy-light transition-shadow shadow-sm">
           <Plus className="w-4 h-4" /> Tambah Pencapaian
         </button>
       </div>
@@ -158,7 +158,7 @@ export default function DashboardPencapaianPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           {items.map((item) => (
-            <motion.div key={item.id} layout className="bg-white rounded-2xl p-4 md:p-5 border border-black/4 shadow-sm group hover:shadow-md transition-all flex flex-col justify-between min-h-[130px] md:min-h-[140px]">
+            <motion.div key={item.id} layout className="bg-white rounded-2xl p-4 md:p-5 border border-black/4 shadow-sm group hover:shadow-md transition-shadow flex flex-col justify-between min-h-[130px] md:min-h-[140px]">
               <div>
                 <div className="flex items-start justify-between gap-2 md:gap-3 mb-2 md:mb-3">
                   <div className="flex items-center gap-3">

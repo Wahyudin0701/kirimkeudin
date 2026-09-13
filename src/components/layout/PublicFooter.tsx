@@ -72,7 +72,7 @@ export default function PublicFooter() {
         {/* Bottom Section: Copyright */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="font-jakarta text-white/50 text-sm">
-            Â© {new Date().getFullYear()} Wahyudin.
+            © {new Date().getFullYear()} Wahyudin.
           </p>
           <p className="font-jakarta text-white/50 text-sm">
             Seluruh Hak Cipta Dilindungi.

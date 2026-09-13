@@ -12,8 +12,16 @@ export async function GET(request: Request) {
       include: { files: true },
       orderBy: { created_at: "desc" },
     });
-    return NextResponse.json(submissions);
+
+    const serialized = JSON.stringify(submissions, (key, value) =>
+      typeof value === "bigint" ? value.toString() : value
+    );
+
+    return new NextResponse(serialized, {
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (e) {
+    console.error("GET Inbox Error:", e);
     return NextResponse.json({ error: "Gagal mengambil data" }, { status: 500 });
   }
 }
@@ -27,6 +35,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Nama dan pesan wajib diisi" }, { status: 400 });
     }
 
+    const filesData = Array.isArray(body.files) ? body.files.map((f: any) => ({
+      original_name: f.original_name,
+      file_url: f.file_url,
+      file_size: f.file_size,
+      mime_type: f.mime_type,
+    })) : [];
+
     const submission = await prisma.inboxSubmission.create({
       data: {
         sender_name: body.sender_name,
@@ -35,11 +50,15 @@ export async function POST(request: Request) {
         purpose: body.purpose ?? null,
         message: body.message,
         status: "unread",
+        files: {
+          create: filesData
+        }
       },
     });
 
     return NextResponse.json(submission, { status: 201 });
   } catch (e) {
+    console.error(e);
     return NextResponse.json({ error: "Gagal menyimpan kiriman" }, { status: 500 });
   }
 }

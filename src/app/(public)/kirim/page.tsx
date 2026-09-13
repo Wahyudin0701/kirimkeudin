@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Upload, X, FileText, Image, File, Mail } from "lucide-react";
+import Link from "next/link";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -55,6 +56,29 @@ export default function KirimPage() {
     setLoading(true);
 
     try {
+      // 1. Upload files first if any
+      const uploadedFiles = [];
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        if (uploadRes.ok) {
+          const { fileUrl } = await uploadRes.json();
+          uploadedFiles.push({
+            original_name: file.name,
+            file_url: fileUrl,
+            file_size: file.size,
+            mime_type: file.type || "application/octet-stream",
+          });
+        }
+      }
+
+      // 2. Send the message data along with the uploaded files
       const res = await fetch("/api/inbox", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,6 +88,7 @@ export default function KirimPage() {
           sender_contact: form.kontak || null,
           purpose: form.keperluan || null,
           message: form.pesan,
+          files: uploadedFiles,
         }),
       });
 
@@ -78,28 +103,65 @@ export default function KirimPage() {
 
   if (submitted) {
     return (
-      <section className="min-h-screen pt-32 pb-20 px-6 flex items-center justify-center">
+      <section className="min-h-screen pt-32 pb-20 px-6 flex items-center justify-center relative overflow-hidden">
+        {/* Confetti / background decorations for success */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-ku-yellow/10 rounded-full blur-[80px] pointer-events-none" />
+        
         <motion.div
-          className="glass-card p-12 shadow-glass text-center max-w-md"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-white border border-gray-100 rounded-[2.5rem] p-10 md:p-14 shadow-card text-center max-w-lg w-full relative z-10"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
         >
-          <div className="w-16 h-16 rounded-2xl bg-ku-green/20 flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-ku-green" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </div>
-          <h2 className="font-montserrat font-extrabold text-2xl text-ku-navy mb-3">Terkirim! 🎉</h2>
-          <p className="font-jakarta text-text-soft leading-relaxed">
-            Makasih ya sudah mengirim sesuatu ke Udin. Akan segera dilihat dan ditindaklanjuti!
-          </p>
-          <button
-            onClick={() => { setSubmitted(false); setForm({ nama: "", email: "", kontak: "", keperluan: "", pesan: "" }); setFiles([]); }}
-            className="mt-8 font-jakarta font-bold text-sm text-ku-navy underline underline-offset-4 hover:text-ku-navy-light transition-colors"
+          {/* Animated Check Icon */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", damping: 15, stiffness: 200, delay: 0.1 }}
+            className="w-24 h-24 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-8 border-[6px] border-white shadow-sm relative"
           >
-            Kirim lagi
-          </button>
+            <div className="absolute inset-0 rounded-full border-4 border-green-100 scale-[1.2]" />
+            <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+              <motion.polyline 
+                points="20 6 9 17 4 12"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              />
+            </svg>
+          </motion.div>
+
+          <motion.h2 
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            className="font-montserrat font-extrabold text-3xl md:text-4xl text-ku-navy mb-4 tracking-tight"
+          >
+            Pesan Terkirim! 🎉
+          </motion.h2>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            className="font-jakarta text-text-soft text-base md:text-lg leading-relaxed mb-10 px-4"
+          >
+            Terima kasih! Pesan dan file kamu sudah mendarat dengan aman di kotak masuk Udin. Akan segera dibaca dan ditindaklanjuti.
+          </motion.p>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <button
+              onClick={() => { setSubmitted(false); setForm({ nama: "", email: "", kontak: "", keperluan: "", pesan: "" }); setFiles([]); }}
+              className="w-full sm:w-auto font-jakarta font-bold text-sm px-8 py-3.5 rounded-xl border-2 border-ku-navy/10 text-ku-navy hover:bg-gray-50 hover:border-ku-navy/30 transition-all"
+            >
+              Kirim Pesan Lain
+            </button>
+            <Link 
+              href="/"
+              className="w-full sm:w-auto font-jakarta font-bold text-sm px-8 py-3.5 rounded-xl bg-ku-navy text-white hover:bg-ku-navy-light hover:shadow-lg transition-all hover:-translate-y-0.5"
+            >
+              Kembali ke Beranda
+            </Link>
+          </motion.div>
         </motion.div>
       </section>
     );
@@ -145,16 +207,16 @@ export default function KirimPage() {
                     />
                   </div>
                   
-                  {/* Email */}
+                  {/* Relasi / Kenal Sebagai */}
                   <div className="space-y-2">
                     <label className="block font-jakarta font-bold text-sm text-text-soft ml-1">
-                      Alamat Email <span className="text-text-muted font-normal font-medium">(Opsional)</span>
+                      Kenal Sebagai <span className="text-text-muted font-normal font-medium">(Opsional)</span>
                     </label>
                     <input
-                      type="email"
-                      placeholder="email@kamu.com"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      type="text"
+                      placeholder="Misal: Teman kampus, Klien, dll."
+                      value={form.kontak}
+                      onChange={(e) => setForm({ ...form, kontak: e.target.value })}
                       className="w-full font-jakarta text-sm px-5 py-4 rounded-2xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:outline-none focus:border-ku-navy focus:ring-4 focus:ring-ku-navy/10 transition-all placeholder:text-text-muted/70"
                     />
                   </div>

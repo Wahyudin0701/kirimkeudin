@@ -57,7 +57,7 @@ export default function PencapaianClient({
                   <button
                     key={item.id}
                     onClick={() => setSelectedItem(item)}
-                    className="text-left glass-card flex flex-col shadow-card hover:shadow-card-hover transition-all duration-300 group overflow-hidden border border-black/5 cursor-pointer w-full"
+                    className="text-left glass-card flex flex-col shadow-card hover:shadow-card-hover transition-shadow duration-300 group overflow-hidden border border-black/5 cursor-pointer w-full"
                   >
                     {/* Image Thumbnail Area */}
                     <div className="relative w-full aspect-[4/3] bg-ku-bg border-b border-black/5 overflow-hidden flex items-center justify-center">

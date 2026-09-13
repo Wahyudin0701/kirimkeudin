@@ -38,7 +38,7 @@ export default async function KaryaPage() {
             {projects.map((project) => (
               <div
                 key={project.id}
-                className="glass-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 group flex flex-col"
+                className="glass-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 group flex flex-col"
               >
                 {/* Thumbnail */}
                 <div className="w-full aspect-[16/10] bg-gradient-to-br from-ku-navy/8 to-ku-navy/3 flex items-center justify-center overflow-hidden">
