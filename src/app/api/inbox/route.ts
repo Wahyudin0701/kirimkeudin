@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAuthenticated } from "@/lib/auth";
 
 // GET — ambil semua submission inbox
 export async function GET(request: Request) {
+  if (!(await isAuthenticated())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status"); // unread|read|archived

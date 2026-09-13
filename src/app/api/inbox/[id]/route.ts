@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAuthenticated } from "@/lib/auth";
 
 // PATCH — update status submission (unread → read → archived)
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await isAuthenticated())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  
   try {
     const { id } = await params;
     const body = await request.json();
@@ -19,6 +22,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
 // DELETE — hapus submission
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await isAuthenticated())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  
   try {
     const { id } = await params;
     // Hapus files dulu (cascade harusnya handle ini, tapi kita eksplisit)

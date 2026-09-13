@@ -8,8 +8,6 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const CORRECT_PIN = "0701";
-
 export default function LoginPage() {
   const router = useRouter();
   const [step, setStep] = useState<"login" | "pin">("login");
@@ -284,16 +282,32 @@ export default function LoginPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
-                  if (pin.length === 4) {
-                    if (pin === CORRECT_PIN && sessionTokens) {
-                      document.cookie = `sb-access-token=${sessionTokens.access}; path=/; max-age=86400; SameSite=Lax; Secure`;
-                      document.cookie = `sb-refresh-token=${sessionTokens.refresh}; path=/; max-age=86400; SameSite=Lax; Secure`;
-                      router.push("/dashboard");
-                    } else {
+                  if (pin.length === 4 && sessionTokens) {
+                    setLoading(true);
+                    try {
+                      const res = await fetch("/api/auth/pin", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          pin,
+                          access_token: sessionTokens.access,
+                          refresh_token: sessionTokens.refresh
+                        })
+                      });
+                      
+                      if (res.ok) {
+                        router.push("/dashboard");
+                      } else {
+                        setPinError(true);
+                        setPin("");
+                      }
+                    } catch (error) {
                       setPinError(true);
                       setPin("");
+                    } finally {
+                      setLoading(false);
                     }
                   }
                 }}
