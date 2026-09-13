@@ -2,6 +2,8 @@ import { ExternalLink, Github } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { TechIconRow } from "@/components/TechBadge";
 
+export const dynamic = 'force-dynamic';
+
 // Fetch langsung di server (Server Component)
 async function getProjects() {
   try {

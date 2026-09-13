@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import LandingClient from "./LandingClient";
 
+export const dynamic = 'force-dynamic';
+
 async function getLandingData() {
   try {
     const [projects, achievements, journeys, projectCount, journeyCount, achievementCount, settingsRaw] =

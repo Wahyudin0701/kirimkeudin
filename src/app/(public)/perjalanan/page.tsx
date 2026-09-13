@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import PerjalananClient from "./PerjalananClient";
 
+export const dynamic = 'force-dynamic';
+
 async function getJourneys() {
   try {
     return await prisma.journey.findMany({

@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Briefcase, MapPin, Trophy, Inbox, ArrowRight, Clock, FolderLock, File, Image as ImageIcon, FileText } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 async function getStats() {
   try {
     const [projectCount, journeyCount, achievementCount, unreadCount, totalInbox, vaultFileCount] = await Promise.all([
