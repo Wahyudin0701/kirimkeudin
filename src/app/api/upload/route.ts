@@ -12,7 +12,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "File tidak ditemukan" }, { status: 400 });
     }
 
-    const ext = file.name.split(".").pop() || "jpg";
+    // Validasi Ukuran (Maks 10MB)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "Ukuran file maksimal 10MB" }, { status: 400 });
+    }
+
+    // Validasi Ekstensi Berbahaya
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const blockedExtensions = ["exe", "bat", "cmd", "sh", "js", "ts", "php", "py", "ps1", "vbs"];
+    if (blockedExtensions.includes(ext)) {
+      return NextResponse.json({ error: "Tipe file tidak diizinkan" }, { status: 400 });
+    }
+
     const uniqueKey = `uploads/${Date.now()}-${uuidv4()}.${ext}`;
 
     // Konversi file ke Buffer untuk upload ke R2
