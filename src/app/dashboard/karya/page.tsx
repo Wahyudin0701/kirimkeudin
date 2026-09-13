@@ -166,8 +166,19 @@ export default function DashboardKaryaPage() {
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/projects");
-    setProjects(await res.json());
+    try {
+      const res = await fetch("/api/projects");
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setProjects(data);
+      } else {
+        console.error("API error:", data);
+        setProjects([]);
+      }
+    } catch (e) {
+      console.error("Fetch error:", e);
+      setProjects([]);
+    }
     setLoading(false);
   }, []);
 

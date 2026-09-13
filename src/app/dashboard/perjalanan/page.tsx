@@ -75,7 +75,23 @@ export default function DashboardPerjalananPage() {
   };
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  const fetchItems = useCallback(async () => { setLoading(true); const res = await fetch("/api/journeys"); setItems(await res.json()); setLoading(false); }, []);
+  const fetchItems = useCallback(async () => { 
+    setLoading(true); 
+    try {
+      const res = await fetch("/api/journeys"); 
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setItems(data); 
+      } else {
+        console.error("API error:", data);
+        setItems([]);
+      }
+    } catch (e) {
+      console.error("Fetch error:", e);
+      setItems([]);
+    }
+    setLoading(false); 
+  }, []);
   useEffect(() => { fetchItems(); }, [fetchItems]);
 
   const handleSave = async (data: any) => {
