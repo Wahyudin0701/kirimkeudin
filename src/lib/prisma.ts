@@ -18,3 +18,25 @@ export const prisma =
   });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+/**
+ * Helper to retry Prisma queries that might fail due to transient connection pool exhaustion
+ * in the serverless environment (Vercel).
+ */
+export async function withRetry<T>(operation: () => Promise<T>, fallback: T, maxRetries = 3): Promise<T> {
+  let lastError;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (e: any) {
+      lastError = e;
+      console.warn(`[Prisma Retry] Attempt ${attempt}/${maxRetries} failed:`, e.message || String(e));
+      if (attempt < maxRetries) {
+        // Exponential backoff: 500ms, 1000ms, ...
+        await new Promise((resolve) => setTimeout(resolve, attempt * 500));
+      }
+    }
+  }
+  console.error(`[Prisma Retry] All ${maxRetries} attempts failed. Returning fallback. Error:`, lastError);
+  return fallback;
+}

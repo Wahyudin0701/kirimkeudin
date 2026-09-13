@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, withRetry } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
@@ -8,9 +8,9 @@ export async function GET() {
     let settings;
     // Fallback to raw query if Prisma client wasn't successfully regenerated
     if (prisma.settings) {
-      settings = await prisma.settings.findUnique({ where: { id: "default" } });
+      settings = await withRetry(() => prisma.settings.findUnique({ where: { id: "default" } }), null);
     } else {
-      const res: any = await prisma.$queryRaw`SELECT * FROM settings WHERE id = 'default' LIMIT 1`;
+      const res: any = await withRetry(() => prisma.$queryRaw`SELECT * FROM settings WHERE id = 'default' LIMIT 1`, []);
       settings = Array.isArray(res) && res.length > 0 ? res[0] : null;
     }
 

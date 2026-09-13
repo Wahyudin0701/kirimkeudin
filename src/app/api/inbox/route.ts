@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, withRetry } from "@/lib/prisma";
 import { isAuthenticated } from "@/lib/auth";
 
 // GET — ambil semua submission inbox
@@ -12,11 +12,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status"); // unread|read|archived
 
-    const submissions = await prisma.inboxSubmission.findMany({
-      where: status ? { status } : undefined,
-      include: { files: true },
-      orderBy: { created_at: "desc" },
-    });
+    const submissions = await withRetry(
+      () => prisma.inboxSubmission.findMany({
+        where: status ? { status } : undefined,
+        include: { files: true },
+        orderBy: { created_at: "desc" },
+      }),
+      []
+    );
 
     const serialized = JSON.stringify(submissions, (key, value) =>
       typeof value === "bigint" ? value.toString() : value
