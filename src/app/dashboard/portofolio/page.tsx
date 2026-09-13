@@ -52,20 +52,31 @@ export default function PortofolioHomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/projects").then(r => r.json()),
-      fetch("/api/journeys").then(r => r.json()),
-      fetch("/api/achievements").then(r => r.json()),
-    ])
-      .then(([p, j, a]) => {
+    const fetchData = async () => {
+      try {
+        // Fetch sequentially to prevent Vercel Serverless connection pool exhaustion
+        const pRes = await fetch("/api/projects");
+        const p = await pRes.json();
+        
+        const jRes = await fetch("/api/journeys");
+        const j = await jRes.json();
+        
+        const aRes = await fetch("/api/achievements");
+        const a = await aRes.json();
+
         setStats({
           projects: Array.isArray(p) ? p.length : 0,
           journeys: Array.isArray(j) ? j.length : 0,
           achievements: Array.isArray(a) ? a.length : 0,
         });
-      })
-      .catch(() => setStats({ projects: 0, journeys: 0, achievements: 0 }))
-      .finally(() => setLoading(false));
+      } catch (e) {
+        setStats({ projects: 0, journeys: 0, achievements: 0 });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
   }, []);
 
   const totalItems = stats
