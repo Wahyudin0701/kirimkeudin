@@ -283,13 +283,13 @@ export default function LandingClient({ projects, achievements, journeys, stats,
             
             {/* Heading — left-aligned, mobile-optimized size */}
             <motion.h1
-              className="font-montserrat font-extrabold text-[2.7rem] sm:text-[3rem] leading-[1.15] text-ku-navy mb-4"
+              className="font-montserrat font-extrabold text-4xl sm:text-5xl leading-[1.15] text-ku-navy mb-4"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               Halo, <br />
-              <span className="whitespace-nowrap">
+              <span>
                 Saya{" "}
                 <span className="relative inline-block">
                   <span
