@@ -98,12 +98,11 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
 
               {/* Progress Text */}
               <motion.div 
-                className="flex flex-col items-center mt-3"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.3 }}
+                className="flex flex-col items-center mt-2 opacity-0"
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.3 }}
               >
-                <span className="font-jakarta font-bold text-sm text-ku-navy/70 tracking-wide">
+                <span className="font-jakarta font-bold text-sm text-text-muted">
                   Memuat... {progress}%
                 </span>
               </motion.div>
