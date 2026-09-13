@@ -2,39 +2,63 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function GlobalPreloader({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [showPreloader, setShowPreloader] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [isReadyToExit, setIsReadyToExit] = useState(false);
 
-  // Trigger ulang preloader setiap kali pindah halaman
+  // 1. Tangkap klik pada link untuk memunculkan preloader SECARA INSTAN
   useEffect(() => {
-    setShowPreloader(true);
-    setProgress(0);
+    const handleLinkClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest("a");
+      if (target && target.href && !target.target && !target.hasAttribute("download")) {
+        const url = new URL(target.href);
+        // Jika link internal dan bukan ke halaman yang sama (hash)
+        if (url.origin === window.location.origin && url.pathname !== window.location.pathname) {
+          setShowPreloader(true);
+          setProgress(0);
+          setIsReadyToExit(false);
+        }
+      }
+    };
+    document.addEventListener("click", handleLinkClick);
+    return () => document.removeEventListener("click", handleLinkClick);
+  }, []);
 
-    // Animasi fake progress bar
+  // 2. Animasi Progress Bar saat preloader muncul
+  useEffect(() => {
+    if (!showPreloader) return;
+
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
-        if (prev < 90) return prev + Math.floor(Math.random() * 15) + 10;
-        if (prev < 100) return prev + 2;
-        return 100;
+        if (isReadyToExit) return 100; // Langsung penuh kalau sudah ready
+        if (prev < 90) return prev + Math.floor(Math.random() * 10) + 5;
+        if (prev < 99) return prev + 1; // Stuck di 99% sampai halaman siap
+        return 99;
       });
-    }, 100);
+    }, 150);
 
-    // Timeline:
-    // 0.0s - 0.7s: Zoom In (di CSS motion)
-    // 0.0s - 1.5s: Progress bar berjalan
-    // 1.5s - 2.0s: Light Sweep (delay 1.5s di motion)
-    // 2.2s: Zoom Out & Hilang
-    const timer = setTimeout(() => setShowPreloader(false), 2200); 
+    return () => clearInterval(progressInterval);
+  }, [showPreloader, isReadyToExit]);
 
-    return () => {
-      clearTimeout(timer);
-      clearInterval(progressInterval);
-    };
-  }, [pathname]);
+  // 3. Ketika URL benar-benar berubah (data dari database sudah selesai diambil)
+  useEffect(() => {
+    // Beri tanda bahwa halaman baru sudah siap
+    setIsReadyToExit(true);
+    setProgress(100);
+
+    // Sequence penyelesaian:
+    // Tunggu light sweep jalan sebentar, lalu tutup preloader-nya
+    const timer = setTimeout(() => {
+      setShowPreloader(false);
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [pathname, searchParams]); // Trigger setiap kali pathname atau parameter ganti
 
   return (
     <>
@@ -61,16 +85,18 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
                 </div>
                 <span className="font-montserrat font-extrabold text-3xl text-ku-navy">Kirim Ke Udin</span>
                 
-                {/* Animasi Garis Cahaya (Light Sweep) - Mulai setelah progress selesai (1.5s) */}
-                <motion.div
-                  className="absolute top-0 bottom-0 w-32 bg-gradient-to-r from-transparent via-white to-transparent skew-x-[30deg] z-10"
-                  initial={{ left: "-100%" }}
-                  animate={{ left: "200%" }}
-                  transition={{ duration: 0.5, delay: 1.5, ease: "easeInOut" }}
-                />
+                {/* Animasi Garis Cahaya (Light Sweep) - Akan jalan otomatis saat progress 100% */}
+                {progress === 100 && (
+                  <motion.div
+                    className="absolute top-0 bottom-0 w-32 bg-gradient-to-r from-transparent via-white to-transparent skew-x-[30deg] z-10"
+                    initial={{ left: "-100%" }}
+                    animate={{ left: "200%" }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                  />
+                )}
               </div>
 
-              {/* Progress Bar (muncul setelah zoom-in selesai) */}
+              {/* Progress Bar */}
               <motion.div 
                 className="flex flex-col items-center mt-2 opacity-0"
                 animate={{ opacity: 1 }}
@@ -80,12 +106,12 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
                   <motion.div 
                     className="h-full bg-ku-navy rounded-full"
                     initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(progress, 100)}%` }}
+                    animate={{ width: `${progress}%` }}
                     transition={{ ease: "easeOut" }}
                   />
                 </div>
                 <span className="font-jakarta font-bold text-xs text-text-muted">
-                  Memuat... {Math.min(progress, 100)}%
+                  {progress === 100 ? "Selesai!" : `Memuat... ${progress}%`}
                 </span>
               </motion.div>
             </div>
