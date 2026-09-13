@@ -1,14 +1,12 @@
-﻿import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import PortofolioClient from "./PortofolioClient";
 
 export const dynamic = 'force-dynamic';
 
 export default async function PortofolioHomePage() {
-  const [projectCount, journeyCount, achievementCount] = await Promise.all([
-    prisma.project.count().catch(() => 0),
-    prisma.journey.count().catch(() => 0),
-    prisma.achievement.count().catch(() => 0),
-  ]);
+  const projectCount = await prisma.project.count().catch(() => 0);
+  const journeyCount = await prisma.journey.count().catch(() => 0);
+  const achievementCount = await prisma.achievement.count().catch(() => 0);
 
   return (
     <PortofolioClient
