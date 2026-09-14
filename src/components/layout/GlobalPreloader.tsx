@@ -8,15 +8,21 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [showPreloader, setShowPreloader] = useState(true);
   const [progress, setProgress] = useState(0);
-  // Dua kondisi yang HARUS terpenuhi sebelum preloader boleh tutup:
-  // 1. Halaman sudah siap (URL berubah)
-  // 2. Waktu minimum sudah lewat (agar animasi sempat terlihat)
   const [pageReady, setPageReady] = useState(false);
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
 
   const isReadyToExit = pageReady && minTimeElapsed;
 
-  // 1. Tangkap klik pada link untuk memunculkan preloader SECARA INSTAN
+  // 1. Timer untuk memastikan preloader tampil minimal 700ms (berlaku saat pertama kali load & pindah halaman)
+  useEffect(() => {
+    if (showPreloader) {
+      setMinTimeElapsed(false);
+      const timer = setTimeout(() => setMinTimeElapsed(true), 700);
+      return () => clearTimeout(timer);
+    }
+  }, [showPreloader]);
+
+  // 2. Tangkap klik pada link untuk memunculkan preloader SECARA INSTAN
   useEffect(() => {
     const handleLinkClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement).closest("a");
@@ -26,9 +32,6 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
           setShowPreloader(true);
           setProgress(0);
           setPageReady(false);
-          setMinTimeElapsed(false);
-          // Waktu minimum tampil = 700ms agar progress terlihat berjalan dari 0
-          setTimeout(() => setMinTimeElapsed(true), 700);
         }
       }
     };
@@ -36,18 +39,16 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     return () => document.removeEventListener("click", handleLinkClick);
   }, []);
 
-  // 2. Animasi Progress Bar
+  // 3. Animasi Progress Bar
   useEffect(() => {
     if (!showPreloader) return;
 
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (isReadyToExit) {
-          // Fast-forward ke 100 saat kedua kondisi terpenuhi
           if (prev < 100) return Math.min(prev + 15, 100);
           return 100;
         }
-        // Berhitung dari 0 ke 92 secara normal, lalu tunggu
         if (prev < 92) return prev + Math.floor(Math.random() * 10) + 3;
         if (prev < 99) return prev + 1;
         return 99;
@@ -57,12 +58,12 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     return () => clearInterval(progressInterval);
   }, [showPreloader, isReadyToExit]);
 
-  // 3. Ketika URL berubah, tandai page sudah siap (bisa terjadi sangat cepat di production)
+  // 4. Ketika URL berubah (atau saat halaman pertama kali selesai mount), tandai page sudah siap
   useEffect(() => {
     setPageReady(true);
   }, [pathname]);
 
-  // 4. Tutup preloader hanya saat progress mencapai 100 DAN kedua kondisi terpenuhi
+  // 5. Tutup preloader hanya saat progress mencapai 100 DAN kedua kondisi terpenuhi
   useEffect(() => {
     if (progress === 100 && isReadyToExit) {
       const timer = setTimeout(() => {
