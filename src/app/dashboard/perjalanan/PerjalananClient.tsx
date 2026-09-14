@@ -149,7 +149,7 @@ export default function PerjalananClient({ initialItems }: { initialItems: Journ
                     </div>
                     <h3 className="font-montserrat font-extrabold text-base md:text-lg text-ku-navy truncate">{item.role}</h3>
                     <p className="font-jakarta font-semibold text-xs md:text-sm text-text-soft mt-0.5 truncate">{item.institution}</p>
-                    <p className="font-jakarta text-[10px] md:text-xs text-text-muted mt-1">{item.start_date}{item.end_date ? ` — ${item.end_date}` : item.start_date ? " — sekarang" : ""}</p>
+                    <p className="font-jakarta text-[10px] md:text-xs text-text-muted mt-1">{item.start_date}{item.end_date ? (item.start_date === item.end_date ? "" : ` — ${item.end_date}`) : item.start_date ? " — sekarang" : ""}</p>
                   </div>
                   <div className="flex items-center gap-1.5 md:gap-2 self-start sm:self-auto flex-shrink-0 bg-ku-bg sm:bg-transparent p-1.5 sm:p-0 rounded-lg">
                     <button onClick={() => setView(item)} className="p-1.5 md:p-2 rounded-lg text-text-muted hover:text-ku-navy hover:bg-ku-navy/10"><Pencil className="w-3.5 h-3.5 md:w-4 md:h-4" /></button>

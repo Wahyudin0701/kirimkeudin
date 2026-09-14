@@ -88,7 +88,7 @@ function TimelineItem({
 
   const dateLabel = item.start_date
     ? item.end_date
-      ? `${item.start_date} — ${item.end_date}`
+      ? item.start_date === item.end_date ? item.start_date : `${item.start_date} — ${item.end_date}`
       : `${item.start_date} — sekarang`
     : null;
 

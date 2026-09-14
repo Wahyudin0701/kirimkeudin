@@ -245,7 +245,7 @@ export default function KaryaClient({ initialProjects }: { initialProjects: Proj
                   <div className="min-w-0">
                     <h3 className="font-montserrat font-extrabold text-base md:text-lg text-ku-navy truncate">{p.title}</h3>
                     <p className="font-jakarta text-[10px] md:text-xs font-semibold text-text-muted mt-0.5">
-                      {p.start_date}{p.end_date ? ` — ${p.end_date}` : p.start_date ? " — sekarang" : ""}
+                      {p.start_date}{p.end_date ? (p.start_date === p.end_date ? "" : ` — ${p.end_date}`) : p.start_date ? " — sekarang" : ""}
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5 md:gap-2 self-start sm:self-auto flex-shrink-0 bg-ku-bg sm:bg-transparent p-1.5 sm:p-0 rounded-lg">

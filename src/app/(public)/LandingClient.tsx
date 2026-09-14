@@ -779,7 +779,9 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                   const cat = JOURNEY_CATEGORY[catKey] ?? JOURNEY_CATEGORY.experience;
                   const Icon = cat.Icon;
                   const dateLabel = j.start_date
-                    ? j.end_date ? `${j.start_date} — ${j.end_date}` : `${j.start_date} — sekarang`
+                    ? j.end_date 
+                      ? j.start_date === j.end_date ? j.start_date : `${j.start_date} — ${j.end_date}`
+                      : `${j.start_date} — sekarang`
                     : null;
 
                   return (

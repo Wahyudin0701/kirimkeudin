@@ -68,7 +68,7 @@ export default async function KaryaPage() {
                       <span className="font-jakarta text-[11px] text-text-muted flex-shrink-0 mt-1 whitespace-nowrap">
                         {project.start_date}
                         {project.end_date
-                          ? ` — ${project.end_date}`
+                          ? project.start_date === project.end_date ? "" : ` — ${project.end_date}`
                           : project.start_date
                             ? " — sekarang"
                             : ""}
