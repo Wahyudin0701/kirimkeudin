@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export default function GlobalPreloader({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [showPreloader, setShowPreloader] = useState(true);
   const [progress, setProgress] = useState(0);
   const [isReadyToExit, setIsReadyToExit] = useState(false);
@@ -58,7 +57,7 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [pathname, searchParams]); // Trigger setiap kali pathname atau parameter ganti
+  }, [pathname]); // Trigger setiap kali pathname ganti
 
   return (
     <>
