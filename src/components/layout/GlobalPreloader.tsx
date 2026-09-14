@@ -8,7 +8,13 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [showPreloader, setShowPreloader] = useState(true);
   const [progress, setProgress] = useState(0);
-  const [isReadyToExit, setIsReadyToExit] = useState(false);
+  // Dua kondisi yang HARUS terpenuhi sebelum preloader boleh tutup:
+  // 1. Halaman sudah siap (URL berubah)
+  // 2. Waktu minimum sudah lewat (agar animasi sempat terlihat)
+  const [pageReady, setPageReady] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+
+  const isReadyToExit = pageReady && minTimeElapsed;
 
   // 1. Tangkap klik pada link untuk memunculkan preloader SECARA INSTAN
   useEffect(() => {
@@ -16,11 +22,13 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
       const target = (e.target as HTMLElement).closest("a");
       if (target && target.href && !target.target && !target.hasAttribute("download")) {
         const url = new URL(target.href);
-        // Jika link internal dan bukan ke halaman yang sama (hash)
         if (url.origin === window.location.origin && url.pathname !== window.location.pathname) {
           setShowPreloader(true);
           setProgress(0);
-          setIsReadyToExit(false);
+          setPageReady(false);
+          setMinTimeElapsed(false);
+          // Waktu minimum tampil = 700ms agar progress terlihat berjalan dari 0
+          setTimeout(() => setMinTimeElapsed(true), 700);
         }
       }
     };
@@ -35,32 +43,31 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (isReadyToExit) {
-          // Jika data sudah siap, fast-forward progressnya sangat cepat sampai 100
-          if (prev < 100) return Math.min(prev + 18, 100);
+          // Fast-forward ke 100 saat kedua kondisi terpenuhi
+          if (prev < 100) return Math.min(prev + 15, 100);
           return 100;
         }
-        // Jika masih loading, naik secara random sampai 99
-        if (prev < 90) return prev + Math.floor(Math.random() * 12) + 4;
+        // Berhitung dari 0 ke 92 secara normal, lalu tunggu
+        if (prev < 92) return prev + Math.floor(Math.random() * 10) + 3;
         if (prev < 99) return prev + 1;
         return 99;
       });
-    }, 40); // Interval cepat (40ms) agar pergerakan angka terlihat mulus
+    }, 40);
 
     return () => clearInterval(progressInterval);
   }, [showPreloader, isReadyToExit]);
 
-  // 3. Ketika URL benar-benar berubah (data dari database sudah selesai diambil)
+  // 3. Ketika URL berubah, tandai page sudah siap (bisa terjadi sangat cepat di production)
   useEffect(() => {
-    // Beri tanda bahwa halaman baru sudah siap
-    setIsReadyToExit(true);
+    setPageReady(true);
   }, [pathname]);
 
-  // 4. Trigger exit sequence HANYA ketika progress benar-benar sudah menyentuh 100
+  // 4. Tutup preloader hanya saat progress mencapai 100 DAN kedua kondisi terpenuhi
   useEffect(() => {
     if (progress === 100 && isReadyToExit) {
       const timer = setTimeout(() => {
         setShowPreloader(false);
-      }, 450);
+      }, 400);
       return () => clearTimeout(timer);
     }
   }, [progress, isReadyToExit]);
