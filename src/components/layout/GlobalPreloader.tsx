@@ -51,10 +51,10 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     setProgress(100);
 
     // Sequence penyelesaian:
-    // Tunggu light sweep jalan sebentar, lalu tutup preloader-nya
+    // Tunggu light sweep jalan sebentar (0.4s), lalu langsung tutup preloader-nya
     const timer = setTimeout(() => {
       setShowPreloader(false);
-    }, 1200);
+    }, 450);
 
     return () => clearTimeout(timer);
   }, [pathname]); // Trigger setiap kali pathname ganti
@@ -67,8 +67,8 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
             key="preloader"
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
             initial={{ opacity: 0, scale: 12, filter: "blur(10px) brightness(1.5)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px) brightness(1)", transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }}
-            exit={{ opacity: 0, scale: 12, filter: "blur(10px) brightness(1.5)", transition: { duration: 0.7, ease: [0.8, 0, 0.2, 1] } }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px) brightness(1)", transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }}
+            exit={{ opacity: 0, scale: 12, filter: "blur(10px) brightness(1.5)", transition: { duration: 0.4, ease: [0.8, 0, 0.2, 1] } }}
           >
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-3 relative overflow-hidden px-4 py-4">
@@ -90,7 +90,7 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
                     className="absolute top-0 bottom-0 w-32 bg-gradient-to-r from-transparent via-white to-transparent skew-x-[30deg] z-10"
                     initial={{ left: "-100%" }}
                     animate={{ left: "200%" }}
-                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    transition={{ duration: 0.45, ease: "easeInOut" }}
                   />
                 )}
               </div>
