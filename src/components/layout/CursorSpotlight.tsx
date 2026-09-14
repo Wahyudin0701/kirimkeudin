@@ -23,6 +23,9 @@ export default function CursorSpotlight() {
   const lastRipplePos = useRef({ x: -1000, y: -1000 });
 
   useEffect(() => {
+    // Matikan seluruh logic tracking mouse di perangkat mobile (HP) untuk menghemat performa
+    if (typeof window !== "undefined" && window.innerWidth < 768) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       if (!isVisible) setIsVisible(true);
       

@@ -3,8 +3,10 @@
 import { useEffect } from "react";
 
 export default function MeshBackground() {
-  // Mouse glow effect — ikuti kursor
+  // Mouse glow effect — ikuti kursor (hanya desktop)
   useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
       document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
@@ -41,7 +43,7 @@ export default function MeshBackground() {
 
       {/* Mouse Glow */}
       <div
-        className="pointer-events-none fixed inset-0 z-[9999] transition-opacity duration-500"
+        className="pointer-events-none fixed inset-0 z-[9999] transition-opacity duration-500 hidden md:block"
         style={{
           background:
             "radial-gradient(600px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.12), transparent 80%)",
