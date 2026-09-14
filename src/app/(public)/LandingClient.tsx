@@ -882,18 +882,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                 </Link>
               </div>
 
-              {/* Contact links */}
-              <div className="flex flex-wrap justify-center gap-4 md:gap-6 pt-6 border-t border-white/10">
-                <a
-                  href={`mailto:${settings?.email || "muhammadwahyudin7105@gmail.com"}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 font-jakarta text-sm font-semibold text-white/60 hover:text-ku-yellow transition-colors"
-                >
-                  <Mail className="w-5 h-5" />
-                  <span>{settings?.email || "muhammadwahyudin7105@gmail.com"}</span>
-                </a>
-              </div>
+              {/* Removed Contact links as requested */}
             </div>
           </motion.div>
         </div>
