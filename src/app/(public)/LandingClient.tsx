@@ -524,7 +524,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
               custom={1}
             >
               {/* Decorative Blur */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-ku-yellow/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+              <div className="hidden md:block absolute top-0 right-0 w-64 h-64 bg-ku-yellow/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
               <h3 className="font-montserrat font-bold text-2xl text-ku-navy mb-1.5 relative z-10">
                 Halo, saya <span className="text-ku-yellow">{name}</span>
               </h3>
@@ -844,8 +844,8 @@ export default function LandingClient({ projects, achievements, journeys, stats,
             custom={0}
           >
             {/* Dark Mode Decorative elements */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-ku-yellow/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/3 pointer-events-none" />
+            <div className="hidden md:block absolute top-0 right-0 w-80 h-80 bg-ku-yellow/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            <div className="hidden md:block absolute bottom-0 left-0 w-80 h-80 bg-blue-500/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/3 pointer-events-none" />
             
             {/* Grid pattern overlay */}
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "32px 32px" }} />
