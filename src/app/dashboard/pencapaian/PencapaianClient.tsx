@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Pencil, Trash2, ExternalLink, Loader2, ArrowLeft, X, Image as ImageIcon, UploadCloud } from "lucide-react";
 
@@ -215,8 +216,8 @@ export default function PencapaianClient({ initialItems }: { initialItems: any[]
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
-        {itemToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+        {itemToDelete && typeof document !== "undefined" && createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -247,7 +248,8 @@ export default function PencapaianClient({ initialItems }: { initialItems: any[]
                 </button>
               </div>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
     </div>

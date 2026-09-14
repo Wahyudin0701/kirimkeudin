@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Mail, Trash2, Archive, Eye, Clock, User, ArrowLeft, Download, CheckCircle2, ChevronRight } from "lucide-react";
 
@@ -94,15 +95,15 @@ function DetailPane({ item, onClose, onStatusChange, onDelete }: {
       </div>
 
       <AnimatePresence>
-        {showDeleteConfirm && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-white/80 backdrop-blur-sm">
+        {showDeleteConfirm && typeof document !== "undefined" && createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white rounded-2xl shadow-card border border-black/5 p-6 w-full max-w-sm text-center"
+              className="bg-white rounded-2xl shadow-xl border border-black/5 p-6 w-full max-w-sm text-center"
             >
-              <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
                 <Trash2 className="w-6 h-6" />
               </div>
               <h3 className="font-montserrat font-extrabold text-lg text-ku-navy mb-2">Hapus Pesan?</h3>
@@ -126,7 +127,8 @@ function DetailPane({ item, onClose, onStatusChange, onDelete }: {
                 </button>
               </div>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
 
