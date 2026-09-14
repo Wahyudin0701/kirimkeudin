@@ -42,6 +42,8 @@ function DetailPane({ item, onClose, onStatusChange, onDelete }: {
 }) {
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const action = async (fn: () => Promise<void>) => {
     setLoading(true);
