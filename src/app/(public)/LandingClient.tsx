@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   motion,
   useMotionValue,
@@ -143,6 +144,7 @@ function SectionHeader({
 // ── MAIN LANDING CLIENT ──────────────────────────────────────
 // ══════════════════════════════════════════════════════════════
 export default function LandingClient({ projects, achievements, journeys, stats, settings }: Props) {
+  const router = useRouter();
   const name = settings?.name || "Wahyudin";
 
   // ── Deteksi Mobile — matikan semua spring physics di HP ──
@@ -640,7 +642,8 @@ export default function LandingClient({ projects, achievements, journeys, stats,
               {projects.map((project, i) => (
                 <motion.div
                   key={project.id}
-                  className="min-w-[85vw] sm:min-w-[320px] md:min-w-0 snap-center glass-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 group flex flex-col"
+                  onClick={() => router.push("/karya")}
+                  className="min-w-[85vw] sm:min-w-[320px] md:min-w-0 snap-center glass-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 group flex flex-col cursor-pointer"
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.1 }}
@@ -713,7 +716,8 @@ export default function LandingClient({ projects, achievements, journeys, stats,
               {achievements.map((ach, i) => (
                 <motion.div
                   key={ach.id}
-                  className="min-w-[75vw] sm:min-w-[250px] md:min-w-0 snap-center glass-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 group"
+                  onClick={() => router.push("/pencapaian")}
+                  className="min-w-[75vw] sm:min-w-[250px] md:min-w-0 snap-center glass-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 group cursor-pointer"
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.1 }}
@@ -781,7 +785,8 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                   return (
                     <motion.div
                       key={j.id}
-                      className={`relative flex items-center justify-start md:justify-between gap-4 md:gap-0 ${i % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}
+                      onClick={() => router.push("/perjalanan")}
+                      className={`relative flex items-center justify-start md:justify-between gap-4 md:gap-0 cursor-pointer group ${i % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}
                       initial="hidden"
                       whileInView="visible"
                       viewport={{ once: true, amount: 0.1 }}
@@ -790,13 +795,13 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                     >
                       {/* Mobile Timeline dot */}
                       <div className="relative flex flex-col items-center flex-shrink-0 w-10 md:hidden">
-                        <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center bg-white ring-2 ring-ku-navy/20 shadow-sm`}>
+                        <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center bg-white ring-2 ring-ku-navy/20 shadow-sm group-hover:scale-110 transition-transform`}>
                           <Icon className={`w-[18px] h-[18px] ${cat.color}`} />
                         </div>
                       </div>
 
                       {/* Content card */}
-                      <div className="glass-card p-5 shadow-card flex-1 md:flex-none md:w-[calc(50%-2.5rem)]">
+                      <div className="glass-card p-5 shadow-card group-hover:shadow-card-hover transition-all flex-1 md:flex-none md:w-[calc(50%-2.5rem)]">
                         <div className="flex flex-wrap items-center gap-2 mb-2">
                           <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-jakarta font-semibold border ${cat.bg} ${cat.color}`}>
                             {cat.label}

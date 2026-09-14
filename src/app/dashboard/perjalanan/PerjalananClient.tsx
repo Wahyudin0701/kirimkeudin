@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Pencil, Trash2, Loader2, MapPin, ArrowLeft } from "lucide-react";
 
 type Journey = { id: string; category: string | null; institution: string | null; role: string | null; description: string | null; start_date: string | null; end_date: string | null; location: string | null; sort_order: number; };
@@ -99,9 +99,14 @@ export default function PerjalananClient({ initialItems }: { initialItems: any[]
     setView("list"); fetchItems();
   };
 
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
   const handleDelete = async (id: string) => {
-    if (!confirm("Hapus data ini?")) return;
-    setDeleting(id); await fetch(`/api/journeys/${id}`, { method: "DELETE" }); setDeleting(null); fetchItems();
+    setDeleting(id); 
+    await fetch(`/api/journeys/${id}`, { method: "DELETE" }); 
+    setDeleting(null); 
+    setItemToDelete(null);
+    fetchItems();
   };
 
   if (view !== "list") return <div className="p-4 md:p-8 max-w-6xl mx-auto min-h-[calc(100vh-100px)] w-full"><JourneyForm initial={view === "add" ? EMPTY : view} onSave={handleSave} onCancel={() => setView("list")} /></div>;
@@ -144,7 +149,7 @@ export default function PerjalananClient({ initialItems }: { initialItems: any[]
                   </div>
                   <div className="flex items-center gap-1.5 md:gap-2 self-start sm:self-auto flex-shrink-0 bg-ku-bg sm:bg-transparent p-1.5 sm:p-0 rounded-lg">
                     <button onClick={() => setView(item)} className="p-1.5 md:p-2 rounded-lg text-text-muted hover:text-ku-navy hover:bg-ku-navy/10"><Pencil className="w-3.5 h-3.5 md:w-4 md:h-4" /></button>
-                    <button onClick={() => handleDelete(item.id)} disabled={deleting === item.id} className="p-1.5 md:p-2 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50">
+                    <button onClick={() => setItemToDelete(item.id)} disabled={deleting === item.id} className="p-1.5 md:p-2 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50">
                       {deleting === item.id ? <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />}
                     </button>
                   </div>
@@ -155,6 +160,44 @@ export default function PerjalananClient({ initialItems }: { initialItems: any[]
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {itemToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white rounded-2xl shadow-xl border border-black/5 p-6 w-full max-w-sm text-center"
+            >
+              <div className="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <h3 className="font-montserrat font-extrabold text-lg text-ku-navy mb-2">Hapus Perjalanan?</h3>
+              <p className="font-jakarta text-sm text-text-muted mb-6">
+                Data perjalanan ini akan dihapus secara permanen dan tidak dapat dikembalikan.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setItemToDelete(null)}
+                  disabled={deleting !== null}
+                  className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-gray-100 text-text-soft hover:bg-gray-200 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={() => handleDelete(itemToDelete)}
+                  disabled={deleting !== null}
+                  className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors flex justify-center items-center gap-2"
+                >
+                  {deleting !== null ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ya, Hapus"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
