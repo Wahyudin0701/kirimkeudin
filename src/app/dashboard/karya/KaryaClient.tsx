@@ -142,7 +142,10 @@ function ProjectForm({ initial, onSave, onCancel }: { initial: Omit<Project, "id
   );
 }
 
-export default function KaryaClient({ initialProjects }: { initialProjects: any[] }) {
+export default function KaryaClient({ initialProjects }: { initialProjects: Project[] }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [loading, setLoading] = useState(false);
   const [view, setViewRaw] = useState<"list" | "add" | Project>("list");
@@ -267,43 +270,45 @@ export default function KaryaClient({ initialProjects }: { initialProjects: any[
       )}
 
       {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {itemToDelete && typeof document !== "undefined" && createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white rounded-2xl shadow-xl border border-black/5 p-6 w-full max-w-sm text-center"
-            >
-              <div className="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-6 h-6" />
-              </div>
-              <h3 className="font-montserrat font-extrabold text-lg text-ku-navy mb-2">Hapus Proyek?</h3>
-              <p className="font-jakarta text-sm text-text-muted mb-6">
-                Proyek ini akan dihapus secara permanen dan tidak dapat dikembalikan.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setItemToDelete(null)}
-                  disabled={deleting !== null}
-                  className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-gray-100 text-text-soft hover:bg-gray-200 transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={() => handleDelete(itemToDelete)}
-                  disabled={deleting !== null}
-                  className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors flex justify-center items-center gap-2"
-                >
-                  {deleting !== null ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ya, Hapus"}
-                </button>
-              </div>
-            </motion.div>
-          </div>,
-          document.body
-        )}
-      </AnimatePresence>
+      {mounted && createPortal(
+        <AnimatePresence>
+          {itemToDelete && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                className="bg-white rounded-2xl shadow-xl border border-black/5 p-6 w-full max-w-sm text-center"
+              >
+                <div className="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <h3 className="font-montserrat font-extrabold text-lg text-ku-navy mb-2">Hapus Proyek?</h3>
+                <p className="font-jakarta text-sm text-text-muted mb-6">
+                  Proyek ini akan dihapus secara permanen dan tidak dapat dikembalikan.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setItemToDelete(null)}
+                    disabled={deleting !== null}
+                    className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-gray-100 text-text-soft hover:bg-gray-200 transition-colors"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={() => handleDelete(itemToDelete)}
+                    disabled={deleting !== null}
+                    className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors flex justify-center items-center gap-2"
+                  >
+                    {deleting !== null ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ya, Hapus"}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
