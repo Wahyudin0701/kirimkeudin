@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, Suspense } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import {
@@ -142,6 +143,8 @@ function VaultPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlFolderId = searchParams.get("folderId");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const [folders, setFolders]       = useState<VaultFolder[]>([]);
   const [files, setFiles]           = useState<VaultFile[]>([]);
@@ -513,44 +516,47 @@ function VaultPageContent() {
       </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {itemToDelete && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white rounded-2xl shadow-xl border border-black/5 p-6 w-full max-w-sm text-center"
-            >
-              <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-6 h-6" />
-              </div>
-              <h3 className="font-montserrat font-extrabold text-lg text-ku-navy mb-2">Hapus {itemToDelete.type === "folder" ? "Folder" : "File"}?</h3>
-              <p className="font-jakarta text-sm text-text-muted mb-6">
-                {itemToDelete.type === "folder" 
-                  ? "Yakin ingin menghapus folder ini? Pastikan folder sudah kosong." 
-                  : "File ini akan dihapus secara permanen dan tidak dapat dikembalikan."}
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setItemToDelete(null)}
-                  disabled={isDeleting}
-                  className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-gray-100 text-text-soft hover:bg-gray-200 transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  disabled={isDeleting}
-                  className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors flex justify-center items-center gap-2"
-                >
-                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ya, Hapus"}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {mounted && createPortal(
+        <AnimatePresence>
+          {itemToDelete && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                className="bg-white rounded-2xl shadow-xl border border-black/5 p-6 w-full max-w-sm text-center"
+              >
+                <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <h3 className="font-montserrat font-extrabold text-lg text-ku-navy mb-2">Hapus {itemToDelete.type === "folder" ? "Folder" : "File"}?</h3>
+                <p className="font-jakarta text-sm text-text-muted mb-6">
+                  {itemToDelete.type === "folder" 
+                    ? "Yakin ingin menghapus folder ini? Pastikan folder sudah kosong." 
+                    : "File ini akan dihapus secara permanen dan tidak dapat dikembalikan."}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setItemToDelete(null)}
+                    disabled={isDeleting}
+                    className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-gray-100 text-text-soft hover:bg-gray-200 transition-colors"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={confirmDelete}
+                    disabled={isDeleting}
+                    className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors flex justify-center items-center gap-2"
+                  >
+                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ya, Hapus"}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       <StorageBanner totalBytes={totalBytes} />
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -22,6 +23,7 @@ import {
   ArrowRight,
   Mail,
   Send,
+  X,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────
@@ -146,6 +148,9 @@ function SectionHeader({
 export default function LandingClient({ projects, achievements, journeys, stats, settings }: Props) {
   const router = useRouter();
   const name = settings?.name || "Wahyudin";
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // ── Scroll-based parallax for background blobs ──
   const containerRef = useRef<HTMLDivElement>(null);
@@ -632,7 +637,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
               {projects.map((project, i) => (
                 <motion.div
                   key={project.id}
-                  onClick={() => router.push("/karya")}
+                  onClick={() => setSelectedProject(project)}
                   className="min-w-[85vw] sm:min-w-[320px] md:min-w-0 snap-center glass-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 group flex flex-col cursor-pointer"
                   initial="hidden"
                   whileInView="visible"
@@ -681,6 +686,71 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                 </motion.div>
               ))}
             </div>
+          )}
+
+          {/* Modal Detail Project */}
+          {mounted && createPortal(
+            <AnimatePresence>
+              {selectedProject && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6 bg-ku-navy/40 backdrop-blur-sm" onClick={() => setSelectedProject(null)}>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
+                  >
+                    <div className="relative w-full h-48 md:h-64 bg-gradient-to-br from-ku-navy/8 to-ku-navy/3 flex-shrink-0">
+                      <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-colors">
+                        <X className="w-5 h-5" />
+                      </button>
+                      {selectedProject.thumbnail_url ? (
+                        <img src={`/api/image?url=${encodeURIComponent(selectedProject.thumbnail_url)}`} alt={selectedProject.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="font-montserrat font-extrabold text-7xl text-ku-navy/15">{selectedProject.title.charAt(0)}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6 md:p-8 overflow-y-auto">
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
+                        <div>
+                          <h2 className="font-montserrat font-extrabold text-2xl md:text-3xl text-ku-navy mb-2">{selectedProject.title}</h2>
+                          <span className="font-jakarta text-sm font-semibold text-ku-yellow bg-ku-yellow/10 px-3 py-1 rounded-full">
+                            {selectedProject.start_date}{selectedProject.end_date ? (selectedProject.start_date === selectedProject.end_date ? "" : ` — ${selectedProject.end_date}`) : (selectedProject.start_date ? " — sekarang" : "")}
+                          </span>
+                        </div>
+                        {(selectedProject.project_url || selectedProject.github_url) && (
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            {selectedProject.project_url && (
+                              <a href={selectedProject.project_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-ku-navy text-white rounded-xl font-jakarta font-bold text-sm hover:bg-ku-navy-light transition-colors">Live Demo</a>
+                            )}
+                            {selectedProject.github_url && (
+                              <a href={selectedProject.github_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-text-soft rounded-xl font-jakarta font-bold text-sm hover:bg-gray-200 hover:text-ku-navy transition-colors">GitHub</a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {selectedProject.tech_stack.length > 0 && (
+                        <div className="mb-6">
+                          <h4 className="font-montserrat font-bold text-sm text-text-soft mb-3">Teknologi yang digunakan</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedProject.tech_stack.map(t => <span key={t} className="px-3 py-1 bg-ku-navy/5 text-ku-navy text-xs font-semibold rounded-lg">{t}</span>)}
+                          </div>
+                        </div>
+                      )}
+                      {selectedProject.description && (
+                        <div>
+                          <h4 className="font-montserrat font-bold text-sm text-text-soft mb-2">Deskripsi Proyek</h4>
+                          <div className="font-jakarta text-text-muted text-sm leading-relaxed whitespace-pre-wrap">{selectedProject.description}</div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>,
+            document.body
           )}
         </div>
       </section>
