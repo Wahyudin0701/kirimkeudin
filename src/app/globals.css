@@ -171,3 +171,43 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(13, 45, 107, 0.4);
 }
+
+/* ===== Mobile Performance: Matikan semua animasi berat di HP ===== */
+@media (max-width: 767px) {
+  /* Hentikan animasi blob yang terus berputar — filter:blur(70px) sangat mahal di GPU HP */
+  .mesh-blob {
+    animation: none !important;
+    filter: none !important;
+    opacity: 0.15;
+  }
+
+  /* Hentikan shimmer sweep di glass card */
+  .glass-card::before {
+    animation: none !important;
+    display: none;
+  }
+
+  /* Sederhanakan glass card — backdrop-filter:blur sangat mahal saat scroll di HP */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    will-change: auto;
+  }
+
+  /* Sembunyikan mouse glow (tidak ada kursor di HP) */
+  .mouse-glow::before {
+    display: none !important;
+  }
+}
+
+/* ===== Reduced Motion: Hormati preferensi aksesibilitas user ===== */
+@media (prefers-reduced-motion: reduce) {
+  .mesh-blob,
+  .glass-card::before {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
