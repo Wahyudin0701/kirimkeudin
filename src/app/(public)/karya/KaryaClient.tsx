@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ExternalLink, Github, X } from "lucide-react";
 import { TechIconRow } from "@/components/TechBadge";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,9 +23,7 @@ export default function KaryaClient({ projects }: { projects: Project[] }) {
 
   // Filter properti hanya yang butuh createPortal dan client side state
   const [mounted, setMounted] = useState(false);
-  import("react").then((React) => {
-    React.useEffect(() => setMounted(true), []);
-  });
+  useEffect(() => setMounted(true), []);
 
   return (
     <>
