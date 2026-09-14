@@ -196,7 +196,7 @@ function DetailPane({ item, onClose, onStatusChange, onDelete }: {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {item.files.map((f) => (
-                  <a key={f.id} href={f.file_url || "#"} target="_blank" rel="noopener noreferrer"
+                  <a key={f.id} href={f.file_url ? `/api/inbox/download?url=${encodeURIComponent(f.file_url)}&name=${encodeURIComponent(f.original_name || 'file')}` : "#"} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:border-ku-navy/30 hover:shadow-sm transition-all group">
                     <div className="w-10 h-10 rounded-lg bg-ku-bg flex items-center justify-center flex-shrink-0 text-ku-navy group-hover:bg-ku-navy/5">
                       <Download className="w-4 h-4" />
