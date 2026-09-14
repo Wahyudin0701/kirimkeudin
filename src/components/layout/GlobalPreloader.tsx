@@ -63,13 +63,10 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     setPageReady(true);
   }, [pathname]);
 
-  // 5. Tutup preloader hanya saat progress mencapai 100 DAN kedua kondisi terpenuhi
+  // 5. Tutup preloader INSTAN ketika progress mencapai 100
   useEffect(() => {
     if (progress === 100 && isReadyToExit) {
-      const timer = setTimeout(() => {
-        setShowPreloader(false);
-      }, 400);
-      return () => clearTimeout(timer);
+      setShowPreloader(false);
     }
   }, [progress, isReadyToExit]);
 
@@ -81,8 +78,8 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
             key="preloader"
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
             initial={{ opacity: 0, scale: 12, filter: "blur(10px) brightness(1.5)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px) brightness(1)", transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }}
-            exit={{ opacity: 0, scale: 12, filter: "blur(10px) brightness(1.5)", transition: { duration: 0.4, ease: [0.8, 0, 0.2, 1] } }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px) brightness(1)", transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }}
+            exit={{ opacity: 0, scale: 12, filter: "blur(10px) brightness(1.5)", transition: { duration: 0.2, ease: [0.8, 0, 0.2, 1] } }}
           >
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-3 relative overflow-hidden px-4 py-4">
