@@ -257,20 +257,34 @@ function VaultPageContent() {
     window.dispatchEvent(new Event("vault-folders-updated"));
   };
   
-  const handleDeleteFolder = async (id: string) => {
-    if (!confirm("Yakin ingin menghapus folder ini? (Folder harus kosong)")) return;
-    const res = await fetch(`/api/vault/folders/${id}`, { method: "DELETE" });
-    if (!res.ok) { const d = await res.json(); alert(d.error || "Gagal menghapus"); }
-    else {
-      fetchData(currentFolder, true);
-      window.dispatchEvent(new Event("vault-folders-updated"));
+  // ── Delete Confirmation Logic ────────────────────────────
+  const [itemToDelete, setItemToDelete] = useState<{ id: string, type: "folder" | "file" } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    setIsDeleting(true);
+    try {
+      if (itemToDelete.type === "folder") {
+        const res = await fetch(`/api/vault/folders/${itemToDelete.id}`, { method: "DELETE" });
+        if (!res.ok) { const d = await res.json(); alert(d.error || "Gagal menghapus folder. Pastikan folder kosong."); }
+        else { fetchData(currentFolder, true); window.dispatchEvent(new Event("vault-folders-updated")); }
+      } else {
+        await fetch(`/api/vault/files/${itemToDelete.id}`, { method: "DELETE" });
+        fetchData(currentFolder, true); fetchTotal();
+      }
+    } finally {
+      setIsDeleting(false);
+      setItemToDelete(null);
     }
   };
+
+  const handleDeleteFolder = (id: string) => {
+    setItemToDelete({ id, type: "folder" });
+  };
   
-  const handleDeleteFile = async (id: string) => {
-    if (!confirm("Hapus file ini permanen?")) return;
-    await fetch(`/api/vault/files/${id}`, { method: "DELETE" });
-    fetchData(currentFolder, true); fetchTotal();
+  const handleDeleteFile = (id: string) => {
+    setItemToDelete({ id, type: "file" });
   };
 
   // ── Rename Logic ─────────────────────────────────────────
@@ -495,6 +509,46 @@ function VaultPageContent() {
             <h2 className="font-montserrat font-extrabold text-2xl text-white mt-5">Lepaskan file di sini</h2>
             <p className="font-jakarta text-white/60 mt-2 text-sm">File akan diunggah ke folder saat ini.</p>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {itemToDelete && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white rounded-2xl shadow-xl border border-black/5 p-6 w-full max-w-sm text-center"
+            >
+              <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <h3 className="font-montserrat font-extrabold text-lg text-ku-navy mb-2">Hapus {itemToDelete.type === "folder" ? "Folder" : "File"}?</h3>
+              <p className="font-jakarta text-sm text-text-muted mb-6">
+                {itemToDelete.type === "folder" 
+                  ? "Yakin ingin menghapus folder ini? Pastikan folder sudah kosong." 
+                  : "File ini akan dihapus secara permanen dan tidak dapat dikembalikan."}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setItemToDelete(null)}
+                  disabled={isDeleting}
+                  className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-gray-100 text-text-soft hover:bg-gray-200 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                  className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors flex justify-center items-center gap-2"
+                >
+                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ya, Hapus"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
