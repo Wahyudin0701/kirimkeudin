@@ -28,18 +28,23 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     return () => document.removeEventListener("click", handleLinkClick);
   }, []);
 
-  // 2. Animasi Progress Bar saat preloader muncul
+  // 2. Animasi Progress Bar
   useEffect(() => {
     if (!showPreloader) return;
 
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
-        if (isReadyToExit) return 100; // Langsung penuh kalau sudah ready
-        if (prev < 90) return prev + Math.floor(Math.random() * 10) + 5;
-        if (prev < 99) return prev + 1; // Stuck di 99% sampai halaman siap
+        if (isReadyToExit) {
+          // Jika data sudah siap, fast-forward progressnya sangat cepat sampai 100
+          if (prev < 100) return Math.min(prev + 18, 100);
+          return 100;
+        }
+        // Jika masih loading, naik secara random sampai 99
+        if (prev < 90) return prev + Math.floor(Math.random() * 12) + 4;
+        if (prev < 99) return prev + 1;
         return 99;
       });
-    }, 150);
+    }, 40); // Interval cepat (40ms) agar pergerakan angka terlihat mulus
 
     return () => clearInterval(progressInterval);
   }, [showPreloader, isReadyToExit]);
@@ -48,16 +53,17 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
   useEffect(() => {
     // Beri tanda bahwa halaman baru sudah siap
     setIsReadyToExit(true);
-    setProgress(100);
+  }, [pathname]);
 
-    // Sequence penyelesaian:
-    // Tunggu light sweep jalan sebentar (0.4s), lalu langsung tutup preloader-nya
-    const timer = setTimeout(() => {
-      setShowPreloader(false);
-    }, 450);
-
-    return () => clearTimeout(timer);
-  }, [pathname]); // Trigger setiap kali pathname ganti
+  // 4. Trigger exit sequence HANYA ketika progress benar-benar sudah menyentuh 100
+  useEffect(() => {
+    if (progress === 100 && isReadyToExit) {
+      const timer = setTimeout(() => {
+        setShowPreloader(false);
+      }, 450);
+      return () => clearTimeout(timer);
+    }
+  }, [progress, isReadyToExit]);
 
   return (
     <>
