@@ -10,10 +10,11 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
   const [progress, setProgress] = useState(0);
   const [pageReady, setPageReady] = useState(false);
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const isReadyToExit = pageReady && minTimeElapsed;
 
-  // 1. Timer untuk memastikan preloader tampil minimal 700ms (berlaku saat pertama kali load & pindah halaman)
+  // 1. Timer minimum 700ms
   useEffect(() => {
     if (showPreloader) {
       setMinTimeElapsed(false);
@@ -22,7 +23,30 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     }
   }, [showPreloader]);
 
-  // 2. Tangkap klik pada link untuk memunculkan preloader SECARA INSTAN
+  // 2. Deteksi Initial Load (Browser Tab Spinning) vs SPA Navigation
+  useEffect(() => {
+    // Jalankan hanya sekali saat komponen pertama kali mount
+    setIsInitialLoad(false);
+
+    // Cek apakah browser sudah selesai memuat seluruh resource (HTML, CSS, Image)
+    if (document.readyState === "complete") {
+      setPageReady(true);
+    } else {
+      const handleLoad = () => setPageReady(true);
+      window.addEventListener("load", handleLoad);
+      return () => window.removeEventListener("load", handleLoad);
+    }
+  }, []);
+
+  // 3. Deteksi Navigasi Internal (Klik Link)
+  useEffect(() => {
+    // Abaikan saat initial load, karena initial load diurus oleh event "load" di atas
+    if (!isInitialLoad) {
+      setPageReady(true);
+    }
+  }, [pathname, isInitialLoad]);
+
+  // 4. Tangkap klik link
   useEffect(() => {
     const handleLinkClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement).closest("a");
@@ -39,7 +63,7 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     return () => document.removeEventListener("click", handleLinkClick);
   }, []);
 
-  // 3. Animasi Progress Bar
+  // 5. Animasi Progress Bar
   useEffect(() => {
     if (!showPreloader) return;
 
@@ -58,12 +82,7 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
     return () => clearInterval(progressInterval);
   }, [showPreloader, isReadyToExit]);
 
-  // 4. Ketika URL berubah (atau saat halaman pertama kali selesai mount), tandai page sudah siap
-  useEffect(() => {
-    setPageReady(true);
-  }, [pathname]);
-
-  // 5. Tutup preloader INSTAN ketika progress mencapai 100
+  // 6. Tutup preloader INSTAN ketika progress mencapai 100
   useEffect(() => {
     if (progress === 100 && isReadyToExit) {
       setShowPreloader(false);
