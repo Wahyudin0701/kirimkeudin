@@ -65,11 +65,11 @@ type Props = {
 
 // ── Shared animation variants ──────────────────────────────
 const fadeUp = {
-  hidden: { opacity: 0, y: 50 },
+  hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, delay: i * 0.12, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] },
   }),
 };
 
@@ -147,12 +147,6 @@ export default function LandingClient({ projects, achievements, journeys, stats,
   const router = useRouter();
   const name = settings?.name || "Wahyudin";
 
-  // ── Deteksi Mobile — matikan semua spring physics di HP ──
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-  }, []);
-
   // ── Scroll-based parallax for background blobs ──
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
@@ -193,7 +187,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
 
   // Di mobile, jangan tracking mouse sama sekali
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isMobile || typeof window === "undefined") return;
+    if (typeof window === "undefined" || window.innerWidth < 768) return;
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
     mouseX.set(clientX / innerWidth - 0.5);
@@ -201,7 +195,7 @@ export default function LandingClient({ projects, achievements, journeys, stats,
   };
 
   const handleMouseLeave = () => {
-    if (isMobile) return;
+    if (typeof window !== "undefined" && window.innerWidth < 768) return;
     mouseX.set(0);
     mouseY.set(0);
   };
@@ -219,79 +213,71 @@ export default function LandingClient({ projects, achievements, journeys, stats,
       >
 
         {/* Soft warm gold blob — top left — hidden on mobile (too heavy) */}
-        {!isMobile && (
-          <motion.div
-            className="absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full pointer-events-none"
-            style={{
-              background: "radial-gradient(circle, rgba(245,197,24,0.22) 0%, rgba(245,197,24,0.06) 50%, transparent 70%)",
-              filter: "blur(40px)",
-              y: bgY1,
-            }}
-          />
-        )}
+        <motion.div
+          className="hidden md:block absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(245,197,24,0.22) 0%, rgba(245,197,24,0.06) 50%, transparent 70%)",
+            filter: "blur(40px)",
+            y: bgY1,
+          }}
+        />
         {/* Soft navy blob — bottom right — hidden on mobile */}
-        {!isMobile && (
-          <motion.div
-            className="absolute -bottom-24 -right-24 w-[400px] h-[400px] rounded-full pointer-events-none"
-            style={{
-              background: "radial-gradient(circle, rgba(13,45,107,0.10) 0%, rgba(13,45,107,0.03) 50%, transparent 70%)",
-              filter: "blur(50px)",
-              y: bgY2,
-            }}
-          />
-        )}
+        <motion.div
+          className="hidden md:block absolute -bottom-24 -right-24 w-[400px] h-[400px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(13,45,107,0.10) 0%, rgba(13,45,107,0.03) 50%, transparent 70%)",
+            filter: "blur(50px)",
+            y: bgY2,
+          }}
+        />
         {/* Subtle center glow — hidden on mobile */}
-        {!isMobile && (
-          <div
-            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] pointer-events-none"
-            style={{
-              background: "radial-gradient(ellipse, rgba(245,197,24,0.07) 0%, rgba(13,45,107,0.04) 40%, transparent 70%)",
-              filter: "blur(30px)",
-            }}
-          />
-        )}
+        <div
+          className="hidden md:block absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse, rgba(245,197,24,0.07) 0%, rgba(13,45,107,0.04) 40%, transparent 70%)",
+            filter: "blur(30px)",
+          }}
+        />
 
         {/* ── Floating Parallax Decorations — hanya tampil di Desktop ── */}
-        {!isMobile && (
-          <>
-            {/* 1. Yellow orb — top left */}
-            <motion.div
-              className="absolute top-20 left-[10%] md:top-40 md:left-[15%] w-8 h-8 md:w-12 md:h-12 rounded-full bg-ku-yellow/20 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(245,197,24,0.1)] pointer-events-none"
-              style={{ x: x1, y: floatY1, translateY: y1 }}
-            />
+        <div className="hidden md:block">
+          {/* 1. Yellow orb — top left */}
+          <motion.div
+            className="absolute top-20 left-[10%] md:top-40 md:left-[15%] w-8 h-8 md:w-12 md:h-12 rounded-full bg-ku-yellow/20 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(245,197,24,0.1)] pointer-events-none"
+            style={{ x: x1, y: floatY1, translateY: y1 }}
+          />
 
-            {/* 2. Navy ring — right middle */}
-            <motion.div
-              className="absolute top-[20%] right-[5%] md:top-[40%] md:right-[10%] w-12 h-12 md:w-16 md:h-16 rounded-full border-[3px] border-ku-navy/10 pointer-events-none"
-              style={{ x: x2, y: floatY2, translateY: y2 }}
-            />
+          {/* 2. Navy ring — right middle */}
+          <motion.div
+            className="absolute top-[20%] right-[5%] md:top-[40%] md:right-[10%] w-12 h-12 md:w-16 md:h-16 rounded-full border-[3px] border-ku-navy/10 pointer-events-none"
+            style={{ x: x2, y: floatY2, translateY: y2 }}
+          />
 
-            {/* 3. Small blue dot — left mid-bottom */}
-            <motion.div
-              className="absolute bottom-1/4 left-[15%] md:bottom-1/3 md:left-[20%] w-3 h-3 md:w-4 md:h-4 rounded-full bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)] pointer-events-none"
-              style={{ x: x3, y: floatY3, translateY: y3 }}
-            />
+          {/* 3. Small blue dot — left mid-bottom */}
+          <motion.div
+            className="absolute bottom-1/4 left-[15%] md:bottom-1/3 md:left-[20%] w-3 h-3 md:w-4 md:h-4 rounded-full bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)] pointer-events-none"
+            style={{ x: x3, y: floatY3, translateY: y3 }}
+          />
 
-            {/* 4. Plus / star icon — top right */}
-            <motion.svg
-              className="absolute top-32 right-[20%] md:top-28 md:right-[22%] w-5 h-5 md:w-7 md:h-7 text-ku-yellow/70 pointer-events-none"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"
-              style={{ x: x4, y: floatY4, translateY: y4 }}
-              animate={{ rotate: [0, 90, 0] }}
-              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <path d="M12 2v20" /><path d="M2 12h20" />
-            </motion.svg>
+          {/* 4. Plus / star icon — top right */}
+          <motion.svg
+            className="absolute top-32 right-[20%] md:top-28 md:right-[22%] w-5 h-5 md:w-7 md:h-7 text-ku-yellow/70 pointer-events-none"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+            style={{ x: x4, y: floatY4, translateY: y4 }}
+            animate={{ rotate: [0, 90, 0] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <path d="M12 2v20" /><path d="M2 12h20" />
+          </motion.svg>
 
-            {/* 5. Small yellow square — bottom right */}
-            <motion.div
-              className="absolute bottom-[15%] right-[20%] md:bottom-[25%] md:right-[25%] w-5 h-5 md:w-6 md:h-6 bg-ku-yellow/30 rounded-md rotate-12 backdrop-blur-sm pointer-events-none"
-              style={{ x: x5, y: floatY5, translateY: y5 }}
-              animate={{ rotate: [12, 45, 12] }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            />
-          </>
-        )}
+          {/* 5. Small yellow square — bottom right */}
+          <motion.div
+            className="absolute bottom-[15%] right-[20%] md:bottom-[25%] md:right-[25%] w-5 h-5 md:w-6 md:h-6 bg-ku-yellow/30 rounded-md rotate-12 backdrop-blur-sm pointer-events-none"
+            style={{ x: x5, y: floatY5, translateY: y5 }}
+            animate={{ rotate: [12, 45, 12] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
 
 
         {/* ── Center Content ── */}
@@ -566,6 +552,8 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                       <img 
                         src={skill.icon} 
                         alt={skill.name} 
+                        loading="lazy"
+                        decoding="async"
                         className="w-4 h-4 md:w-5 md:h-5 object-contain group-hover:scale-110 transition-transform duration-300"
                         onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} 
                       />
@@ -592,6 +580,8 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                     <img 
                       src={`/api/image?url=${encodeURIComponent(settings.avatar_url)}`} 
                       alt={name} 
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                     />
                     {/* Subtle Gradient Overlay */}
@@ -656,6 +646,8 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                       <img
                         src={`/api/image?url=${encodeURIComponent(project.thumbnail_url)}`}
                         alt={project.title}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
@@ -730,6 +722,8 @@ export default function LandingClient({ projects, achievements, journeys, stats,
                       <img
                         src={`/api/image?url=${encodeURIComponent(ach.photo_url)}`}
                         alt={ach.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
