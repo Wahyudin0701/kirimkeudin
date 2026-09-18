@@ -45,7 +45,17 @@ export async function GET(request: Request) {
       file_size: f.file_size ? f.file_size.toString() : "0"
     }));
 
-    return NextResponse.json({ folders: serializedFolders, files: serializedFiles, allFolders });
+    let totalVaultSize = 0n;
+    for (const f of allFiles) {
+      if (f.file_size) totalVaultSize += BigInt(f.file_size.toString());
+    }
+
+    return NextResponse.json({ 
+      folders: serializedFolders, 
+      files: serializedFiles, 
+      allFolders,
+      totalVaultSize: totalVaultSize.toString()
+    });
   } catch (error) {
     return NextResponse.json({ error: "Gagal memuat isi vault" }, { status: 500 });
   }

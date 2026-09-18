@@ -197,8 +197,7 @@ function VaultPageContent() {
     try {
       const res  = await fetch("/api/vault");
       const data = await res.json();
-      const sum  = (data.files || []).reduce((acc: number, f: VaultFile) => acc + Number(f.file_size), 0);
-      setTotalBytes(sum);
+      setTotalBytes(Number(data.totalVaultSize || 0));
     } catch (e: any) {
       if (e.message !== "Failed to fetch") console.error(e);
     }
