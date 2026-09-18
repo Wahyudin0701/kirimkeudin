@@ -217,16 +217,24 @@ function VaultPageContent() {
           body: JSON.stringify({ filename: file.name, contentType: file.type || "application/octet-stream", size: file.size, folderId: currentFolder }),
         });
         if (!resUrl.ok) throw new Error("Gagal minta link upload");
-        const { uploadUrl } = await resUrl.json();
+        const { uploadUrl, key, filename, contentType, size, folderId } = await resUrl.json();
         setUploadProgress(p => ({ ...p, [tempId]: 40 }));
         
         const uploadRes = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": file.type || "application/octet-stream" }, body: file });
         if (!uploadRes.ok) throw new Error("Gagal upload ke Storage");
         
+        // Konfirmasi record ke database setelah upload sukses
+        const confirmRes = await fetch("/api/vault/files/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key, filename, contentType, size, folderId }),
+        });
+        if (!confirmRes.ok) throw new Error("Gagal menyimpan data file");
+
         setUploadProgress(p => ({ ...p, [tempId]: 100 }));
       } catch (err) {
         console.error("Upload error:", err);
-        alert(`Gagal upload ${file.name}`);
+        alert(`Gagal upload ${file.name}. Pastikan CORS Cloudflare R2 sudah dikonfigurasi.`);
       } finally {
         setTimeout(() => {
           setUploadProgress(p => { const n = { ...p }; delete n[tempId]; return n; });

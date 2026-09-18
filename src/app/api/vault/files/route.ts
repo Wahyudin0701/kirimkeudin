@@ -30,25 +30,13 @@ export async function POST(request: Request) {
     const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
     const finalFileUrl = `${PUBLIC_URL}/${uniqueKey}`;
 
-    // Simpan ke database
-    const fileRecord = await prisma.vaultFile.create({
-      data: {
-        original_name: filename,
-        file_key: uniqueKey,
-        file_url: finalFileUrl,
-        file_size: size,
-        mime_type: contentType,
-        folder_id: folderId || null,
-      },
-    });
-
     return NextResponse.json({
       uploadUrl,
-      fileRecord: {
-        ...fileRecord,
-        file_size: fileRecord.file_size ? fileRecord.file_size.toString() : "0"
-      },
       key: uniqueKey,
+      filename,
+      contentType,
+      size,
+      folderId
     });
   } catch (error) {
     console.error("Presigned URL Error:", error);
