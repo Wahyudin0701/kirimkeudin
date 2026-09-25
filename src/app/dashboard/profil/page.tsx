@@ -1,14 +1,16 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
-import { User, Lock, Mail, Loader2, Save } from "lucide-react";
+import { User, Lock, Mail, Loader2, Save, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function ProfilPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     name: "Wahyudin",
@@ -52,9 +54,17 @@ export default function ProfilPage() {
     setSuccessMsg("");
     
     try {
+      // 1. Update Password di Supabase jika diisi
+      if (form.password.trim() !== "") {
+        const { error: authError } = await supabase.auth.updateUser({
+          password: form.password,
+        });
+        if (authError) throw new Error(`Gagal mengubah sandi: ${authError.message}`);
+      }
+
       let avatar_url;
 
-      // 1. Upload avatar jika ada file baru
+      // 2. Upload avatar jika ada file baru
       if (avatarFile) {
         const formData = new FormData();
         formData.append("file", avatarFile);
@@ -69,7 +79,7 @@ export default function ProfilPage() {
         avatar_url = uploadData.fileUrl;
       }
 
-      // 2. Simpan settings
+      // 3. Simpan settings
       const payload: any = { name: form.name };
       if (avatar_url) payload.avatar_url = avatar_url;
 
@@ -82,6 +92,7 @@ export default function ProfilPage() {
       if (!saveRes.ok) throw new Error("Gagal menyimpan profil");
 
       setForm((f) => ({ ...f, password: "" }));
+      setSuccessMsg("Profil berhasil diperbarui.");
       router.refresh();
       router.push("/dashboard?success=profile_updated");
     } catch (error: any) {
@@ -178,13 +189,22 @@ export default function ProfilPage() {
             <label className="block font-jakarta font-semibold text-xs md:text-sm text-ku-navy mb-1.5 flex items-center gap-1.5">
               <Lock className="w-4 h-4 text-ku-navy/50" /> Kata Sandi Baru
             </label>
-            <input 
-              type="password"
-              value={form.password} 
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              placeholder="Kosongkan jika tidak ingin mengubah sandi"
-              className="w-full font-jakarta text-sm px-4 py-3 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy focus:ring-2 focus:ring-ku-navy/10 transition-all"
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"}
+                value={form.password} 
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder="Kosongkan jika tidak ingin mengubah sandi"
+                className="w-full font-jakarta text-sm px-4 py-3 pr-12 rounded-xl border border-ku-navy/15 bg-ku-bg focus:outline-none focus:border-ku-navy focus:ring-2 focus:ring-ku-navy/10 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-ku-navy/40 hover:text-ku-navy transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
           {successMsg && (
