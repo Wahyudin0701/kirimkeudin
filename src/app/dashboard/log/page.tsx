@@ -100,13 +100,12 @@ export default function ActivityLogPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto min-h-[calc(100vh-100px)] w-full">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto min-h-[calc(100vh-100px)] w-full">
       {/* Header */}
       <div className="mb-6 md:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="font-montserrat font-extrabold text-2xl md:text-3xl text-ku-navy flex items-center gap-3">
-              <History className="w-7 h-7 text-ku-navy/70" />
+            <h1 className="font-montserrat font-extrabold text-2xl md:text-3xl text-ku-navy">
               Log Aktivitas
             </h1>
             <p className="font-jakarta text-xs md:text-sm text-text-muted mt-1">

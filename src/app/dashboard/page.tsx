@@ -209,8 +209,7 @@ export default async function DashboardPage() {
       <div className="mt-4 md:mt-5 glass-card p-5 md:p-6 shadow-card rounded-2xl">
         <div className="flex items-start justify-between mb-5 border-b border-gray-100 pb-4">
           <div>
-            <h2 className="font-montserrat font-extrabold text-lg md:text-xl text-ku-navy flex items-center gap-2">
-              <History className="w-5 h-5 text-ku-navy/50" />
+            <h2 className="font-montserrat font-extrabold text-lg md:text-xl text-ku-navy">
               Log Aktivitas Terbaru
             </h2>
             <p className="font-jakarta text-[10px] md:text-xs text-text-muted mt-1">Rekam jejak aktivitas di dashboard</p>
