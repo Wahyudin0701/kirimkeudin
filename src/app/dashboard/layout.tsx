@@ -164,10 +164,15 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   });
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    document.cookie = "sb-access-token=; path=/; max-age=0";
-    document.cookie = "sb-refresh-token=; path=/; max-age=0";
-    router.push("/login");
+    try {
+      await supabase.auth.signOut();
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Error signing out:", e);
+    } finally {
+      router.push("/login");
+      router.refresh();
+    }
   };
 
   const handleTabClick = (tab: any) => {
