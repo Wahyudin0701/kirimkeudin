@@ -30,6 +30,7 @@
     "react-dropzone": "^20.1.1",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.1",
+    "ua-parser-js": "^2.0.10",
     "uuid": "^14.0.2"
   },
   "devDependencies": {
@@ -37,6 +38,7 @@
     "@types/node": "^20.19.43",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
+    "@types/ua-parser-js": "^0.7.39",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.5.5",
     "eslint": "^9.39.4",

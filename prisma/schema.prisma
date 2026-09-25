@@ -131,3 +131,17 @@ model Settings {
   @@map("settings")
 }
 
+model ActivityLog {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  action      String   @db.VarChar(50)
+  entity      String   @db.VarChar(50)
+  entity_id   String?  @db.Uuid
+  description String   @db.VarChar(500)
+  metadata    Json?
+  created_at  DateTime @default(now())
+
+  @@index([created_at(sort: Desc)])
+  @@map("activity_logs")
+}
+
+

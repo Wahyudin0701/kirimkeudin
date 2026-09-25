@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PUBLIC_URL } from "@/lib/s3";
+import { logActivity } from "@/lib/activity-log";
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
         folder_id: folderId || null,
       },
     });
+
+    await logActivity({ action: 'upload', entity: 'vault_file', entityId: fileRecord.id, description: `Mengunggah file "${filename}"` });
 
     return NextResponse.json({
       fileRecord: {

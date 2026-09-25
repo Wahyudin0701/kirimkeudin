@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = await params;
+    (params as any).id = id;
 
     // Cek apakah folder ini punya subfolder atau file (Sesuai Opsi A: Tidak bisa hapus jika tidak kosong)
     const childFolders = await prisma.vaultFolder.count({ where: { parent_id: id } });
@@ -13,7 +15,10 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       return NextResponse.json({ error: "Folder tidak kosong. Hapus isinya terlebih dahulu." }, { status: 400 });
     }
 
-    await prisma.vaultFolder.delete({ where: { id } });
+    const deleted = await prisma.vaultFolder.delete({ where: { id } });
+
+    await logActivity({ action: 'delete', entity: 'vault_folder', entityId: params.id, description: `Menghapus folder "${deleted.name}"` });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Gagal menghapus folder" }, { status: 500 });

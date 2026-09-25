@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 
 // POST - Buat folder baru
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const { name } = body;
     if (!body.name) {
       return NextResponse.json({ error: "Nama folder wajib diisi" }, { status: 400 });
     }
@@ -15,6 +17,8 @@ export async function POST(request: Request) {
         parent_id: body.parent_id || null,
       },
     });
+
+    await logActivity({ action: 'create', entity: 'vault_folder', entityId: folder.id, description: `Membuat folder "${name}"` });
 
     return NextResponse.json(folder, { status: 201 });
   } catch (error) {

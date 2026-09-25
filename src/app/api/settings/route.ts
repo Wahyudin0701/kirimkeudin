@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma, withRetry } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 
 export const dynamic = 'force-dynamic';
 
@@ -69,6 +70,8 @@ export async function POST(request: Request) {
       const updatedRes: any = await prisma.$queryRaw`SELECT * FROM settings WHERE id = 'default' LIMIT 1`;
       settings = Array.isArray(updatedRes) ? updatedRes[0] : null;
     }
+
+    await logActivity({ action: 'update', entity: 'profile', description: 'Memperbarui profil' });
 
     return NextResponse.json(settings);
   } catch (error: any) {

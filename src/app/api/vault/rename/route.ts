@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAuthenticated } from "@/lib/auth";
+import { logActivity } from "@/lib/activity-log";
 
 export async function PUT(req: Request) {
   if (!(await isAuthenticated())) {
@@ -27,6 +28,8 @@ export async function PUT(req: Request) {
     } else {
       return NextResponse.json({ error: "Invalid type" }, { status: 400 });
     }
+
+    await logActivity({ action: 'update', entity: type === 'file' ? 'vault_file' : 'vault_folder', entityId: id, description: `Mengubah nama menjadi "${newName}"` });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

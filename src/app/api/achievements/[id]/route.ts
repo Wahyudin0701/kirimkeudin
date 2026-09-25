@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -17,6 +18,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         sort_order: body.sort_order ?? 0,
       },
     });
+
+    await logActivity({ action: 'update', entity: 'achievement', entityId: id, description: `Memperbarui pencapaian "${body.name || 'Untitled'}"` });
+
     return NextResponse.json(achievement);
   } catch (e) {
     console.error("PUT Error:", e);
@@ -27,7 +31,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    await prisma.achievement.delete({ where: { id } });
+    const deleted = await prisma.achievement.delete({ where: { id } });
+
+    await logActivity({ action: 'delete', entity: 'achievement', entityId: id, description: `Menghapus pencapaian "${deleted.name}"` });
+
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error("DELETE Error:", e);

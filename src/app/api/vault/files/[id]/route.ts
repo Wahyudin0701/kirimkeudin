@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { s3Client, BUCKET_NAME } from "@/lib/s3";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { logActivity } from "@/lib/activity-log";
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = await params;
+    (params as any).id = id;
 
     // Cari file di database
     const file = await prisma.vaultFile.findUnique({ where: { id } });
@@ -28,7 +30,9 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     }
 
     // Hapus dari DB
-    await prisma.vaultFile.delete({ where: { id } });
+    const deleted = await prisma.vaultFile.delete({ where: { id } });
+
+    await logActivity({ action: 'delete', entity: 'vault_file', entityId: params.id, description: `Menghapus file "${deleted.original_name || deleted.display_name || 'file'}"` });
 
     return NextResponse.json({ success: true });
   } catch (error) {

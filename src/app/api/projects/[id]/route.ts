@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 
 // PUT — update proyek
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -20,6 +21,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         sort_order: body.sort_order ?? 0,
       },
     });
+
+    await logActivity({ action: 'update', entity: 'project', entityId: id, description: `Memperbarui proyek "${body.title || 'Untitled'}"` });
+
     return NextResponse.json(project);
   } catch (e) {
     return NextResponse.json({ error: "Gagal update data" }, { status: 500 });
@@ -30,7 +34,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    await prisma.project.delete({ where: { id } });
+    const deleted = await prisma.project.delete({ where: { id } });
+
+    await logActivity({ action: 'delete', entity: 'project', entityId: id, description: `Menghapus proyek "${deleted.title}"` });
+
     return NextResponse.json({ success: true });
   } catch (e) {
     return NextResponse.json({ error: "Gagal menghapus data" }, { status: 500 });

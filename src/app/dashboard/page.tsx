@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Briefcase, MapPin, Trophy, Inbox, ArrowRight, Clock, FolderLock, File, Image as ImageIcon, FileText } from "lucide-react";
+import {
+  Briefcase, MapPin, Trophy, Inbox, ArrowRight, Clock, FolderLock, File, Image as ImageIcon, FileText,
+  History, Plus, Upload, Pencil, Trash2, LogIn, LogOut, Eye
+} from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +33,21 @@ async function getRecentVaultFiles() {
   catch { return []; }
 }
 
+async function getRecentLogs() {
+  try { return await prisma.activityLog.findMany({ orderBy: { created_at: "desc" }, take: 5 }); }
+  catch { return []; }
+}
+
+const ACTION_ICON_MAP: Record<string, { icon: any; color: string; bg: string }> = {
+  create: { icon: Plus,   color: "text-emerald-600", bg: "bg-emerald-50" },
+  upload: { icon: Upload, color: "text-blue-600",    bg: "bg-blue-50" },
+  update: { icon: Pencil, color: "text-amber-600",   bg: "bg-amber-50" },
+  delete: { icon: Trash2, color: "text-red-500",     bg: "bg-red-50" },
+  login:  { icon: LogIn,  color: "text-purple-600",  bg: "bg-purple-50" },
+  logout: { icon: LogOut, color: "text-gray-500",    bg: "bg-gray-100" },
+  read:   { icon: Eye,    color: "text-slate-500",   bg: "bg-slate-50" },
+};
+
 function timeAgo(date: Date) {
   const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
   if (diff < 60) return `${diff}d lalu`;
@@ -49,6 +67,7 @@ export default async function DashboardPage() {
   const stats       = await getStats();
   const recentInbox = await getRecentInbox();
   const recentFiles = await getRecentVaultFiles();
+  const recentLogs  = await getRecentLogs();
   const hour        = new Date().getHours();
   const greeting    = hour < 12 ? "Selamat Pagi" : hour < 17 ? "Selamat Siang" : "Selamat Malam";
 
@@ -184,6 +203,49 @@ export default async function DashboardPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* ── Activity Log ──────────────────────────────── */}
+      <div className="mt-4 md:mt-5 glass-card p-5 md:p-6 shadow-card rounded-2xl">
+        <div className="flex items-start justify-between mb-5 border-b border-gray-100 pb-4">
+          <div>
+            <h2 className="font-montserrat font-extrabold text-lg md:text-xl text-ku-navy flex items-center gap-2">
+              <History className="w-5 h-5 text-ku-navy/50" />
+              Log Aktivitas Terbaru
+            </h2>
+            <p className="font-jakarta text-[10px] md:text-xs text-text-muted mt-1">Rekam jejak aktivitas di dashboard</p>
+          </div>
+          <Link href="/dashboard/log" className="font-jakarta font-semibold text-xs md:text-sm text-text-muted hover:text-ku-navy transition-colors mt-0.5 md:mt-1">
+            Lihat Semua Log
+          </Link>
+        </div>
+
+        {recentLogs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center min-h-[100px] text-center">
+            <History className="w-10 h-10 text-ku-navy/10 mb-3" />
+            <p className="font-jakarta text-xs md:text-sm text-text-muted">Belum ada aktivitas tercatat</p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {recentLogs.map((log) => {
+              const config = ACTION_ICON_MAP[log.action] || ACTION_ICON_MAP.update;
+              const LogIcon = config.icon;
+              return (
+                <div key={log.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/60 border border-transparent hover:border-black/5 transition-colors">
+                  <div className={`w-8 h-8 rounded-lg ${config.bg} flex items-center justify-center flex-shrink-0`}>
+                    <LogIcon className={`w-4 h-4 ${config.color}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-jakarta font-medium text-xs md:text-sm text-text-soft truncate">{log.description}</p>
+                  </div>
+                  <span className="font-jakarta text-[10px] md:text-xs text-text-muted flex items-center gap-1 flex-shrink-0 whitespace-nowrap">
+                    <Clock className="w-3 h-3 hidden md:block" />{timeAgo(log.created_at)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
     </div>

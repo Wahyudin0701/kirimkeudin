@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { logActivity, getDeviceInfo } from "@/lib/activity-log";
 
 const CORRECT_PIN = process.env.ADMIN_PIN || "0701";
 
@@ -29,6 +30,9 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
     });
+
+    const deviceInfo = getDeviceInfo(request);
+    await logActivity({ action: 'login', entity: 'auth', description: 'Login berhasil', metadata: deviceInfo });
 
     return NextResponse.json({ success: true });
   } catch (e) {
