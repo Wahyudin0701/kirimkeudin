@@ -7,7 +7,20 @@ async function getLandingData() {
   try {
     const projects = await withRetry(() => prisma.project.findMany({ orderBy: [{ sort_order: "asc" }, { created_at: "desc" }], take: 3 }), []);
     const achievements = await withRetry(() => prisma.achievement.findMany({ orderBy: [{ sort_order: "asc" }, { year: "desc" }], take: 4 }), []);
-    const journeys = await withRetry(() => prisma.journey.findMany({ orderBy: [{ sort_order: "asc" }, { created_at: "desc" }], take: 4 }), []);
+    const journeysRaw = await withRetry(() => prisma.journey.findMany({ orderBy: [{ sort_order: "asc" }, { created_at: "desc" }] }), []);
+    
+    // Sort journeys chronologically by extracting year from start_date/end_date
+    const journeys = [...journeysRaw].sort((a, b) => {
+      const getYear = (str: string | null) => {
+        if (!str) return 0;
+        const match = str.match(/\d{4}/);
+        return match ? parseInt(match[0], 10) : 0;
+      };
+      const yearA = Math.max(getYear(a.start_date), getYear(a.end_date));
+      const yearB = Math.max(getYear(b.start_date), getYear(b.end_date));
+      return yearB - yearA;
+    }).slice(0, 4);
+
     
     const counts = await withRetry<any[]>(
       () => prisma.$queryRaw`
