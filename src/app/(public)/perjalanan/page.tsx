@@ -14,9 +14,16 @@ async function getJourneys() {
         const match = str.match(/\d{4}/);
         return match ? parseInt(match[0], 10) : 0;
       };
-      const yearA = Math.max(getYear(a.start_date), getYear(a.end_date));
-      const yearB = Math.max(getYear(b.start_date), getYear(b.end_date));
-      return yearB - yearA;
+      
+      const startA = getYear(a.start_date);
+      const startB = getYear(b.start_date);
+      if (startA !== startB) return startB - startA; // Descending start_date
+      
+      const endA = getYear(a.end_date) || startA;
+      const endB = getYear(b.end_date) || startB;
+      if (endA !== endB) return endB - endA;
+      
+      return 0;
     });
   } catch {
     return [];

@@ -9,16 +9,24 @@ async function getLandingData() {
     const achievements = await withRetry(() => prisma.achievement.findMany({ orderBy: [{ sort_order: "asc" }, { year: "desc" }], take: 4 }), []);
     const journeysRaw = await withRetry(() => prisma.journey.findMany({ orderBy: [{ sort_order: "asc" }, { created_at: "desc" }] }), []);
     
-    // Sort journeys chronologically by extracting year from start_date/end_date
+    // Sort journeys chronologically by extracting year from start_date
     const journeys = [...journeysRaw].sort((a, b) => {
       const getYear = (str: string | null) => {
         if (!str) return 0;
         const match = str.match(/\d{4}/);
         return match ? parseInt(match[0], 10) : 0;
       };
-      const yearA = Math.max(getYear(a.start_date), getYear(a.end_date));
-      const yearB = Math.max(getYear(b.start_date), getYear(b.end_date));
-      return yearB - yearA;
+      
+      const startA = getYear(a.start_date);
+      const startB = getYear(b.start_date);
+      if (startA !== startB) return startB - startA; // Descending start_date
+      
+      const endA = getYear(a.end_date) || startA;
+      const endB = getYear(b.end_date) || startB;
+      if (endA !== endB) return endB - endA;
+      
+      // Fallback to original order (which is created_at desc)
+      return 0;
     }).slice(0, 4);
 
     
